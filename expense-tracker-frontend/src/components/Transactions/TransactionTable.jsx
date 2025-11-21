@@ -14,72 +14,36 @@
  */
 
 import React, { useState } from "react";
-import { Filter, Trash2, Download } from "lucide-react";
+
 import { exportToCSV, exportToPDF } from "../../utils/Export";
 import { useAuth } from "../../contexts/AuthContext";
+import { useApp } from "../../contexts/AppContext";
+import FilterBar from "./FilterBar";
+import TransactionRow from "./TransactionRow";
 
-const TransactionTable = ({ transactions, categories, accounts, onDelete }) => {
+const TransactionTable = () => {
   const { user } = useAuth();
+  const {
+    filteredTransactions,
+    categories,
+    accounts,
+    deleteTransaction,
+    filterType,
+    setFilterType,
+    filterMonth,
+    setFilterMonth,
+  } = useApp();
 
   // ==========================================
-  // STATE FOR FILTERS
+  // STATE FOR PAGINATION & EXPORT
   // ==========================================
 
-  const [filterType, setFilterType] = useState("all");
-  const [filterMonth, setFilterMonth] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // Export date range
   const [exportStartDate, setExportStartDate] = useState("");
   const [exportEndDate, setExportEndDate] = useState("");
-
-  // ==========================================
-  // HELPER FUNCTIONS
-  // ==========================================
-
-  // Get category name by ID
-  const getCategoryName = (catId) => {
-    const cat = categories.find((c) => c.id === parseInt(catId));
-    return cat ? cat.name : "Unknown";
-  };
-
-  // Get category color by ID
-  const getCategoryColor = (catId) => {
-    const cat = categories.find((c) => c.id === parseInt(catId));
-    return cat ? cat.color : "#6b7280";
-  };
-
-  // Get account name by ID
-  const getAccountName = (accId) => {
-    const acc = accounts.find((a) => a.id === parseInt(accId));
-    return acc ? acc.name : "Unknown";
-  };
-
-  // Format date to readable format
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  // ==========================================
-  // FILTER TRANSACTIONS
-  // ==========================================
-
-  const filteredTransactions = transactions.filter((t) => {
-    if (filterType !== "all" && t.type !== filterType) return false;
-
-    if (filterMonth !== "all") {
-      const tMonth = new Date(t.date).getMonth();
-      if (tMonth !== parseInt(filterMonth)) return false;
-    }
-
-    return true;
-  });
 
   // ==========================================
   // PAGINATION
@@ -99,263 +63,60 @@ const TransactionTable = ({ transactions, categories, accounts, onDelete }) => {
     setCurrentPage(1);
   };
 
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this transaction?")) {
+      await deleteTransaction(id);
+    }
+  };
+
   // ==========================================
   // RENDER
   // ==========================================
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-      {/* FILTER SECTION */}
-      <div
-        style={{
-          background: "rgba(255,255,255,0.1)",
-          backdropFilter: "blur(10px)",
-          borderRadius: "16px",
-          padding: "24px",
-          border: "1px solid rgba(255,255,255,0.2)",
+      <FilterBar
+        filterType={filterType}
+        setFilterType={(val) => handleFilterChange(setFilterType)(val)}
+        filterMonth={filterMonth}
+        setFilterMonth={(val) => handleFilterChange(setFilterMonth)(val)}
+        exportStartDate={exportStartDate}
+        setExportStartDate={setExportStartDate}
+        exportEndDate={exportEndDate}
+        setExportEndDate={setExportEndDate}
+        onExportCSV={() => {
+          const exportData = filteredTransactions.filter((t) => {
+            if (!exportStartDate && !exportEndDate) return true;
+            const tDate = new Date(t.date);
+            if (exportStartDate && tDate < new Date(exportStartDate))
+              return false;
+            if (exportEndDate && tDate > new Date(exportEndDate)) return false;
+            return true;
+          });
+          exportToCSV(exportData, categories, accounts, user?.name || "User");
         }}
-      >
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <Filter size={20} color="#9ca3af" />
-            <span style={{ color: "#d1d5db", fontWeight: "500" }}>
-              Filters:
-            </span>
-          </div>
-
-          {/* Type Filter */}
-          <select
-            value={filterType}
-            onChange={(e) => handleFilterChange(setFilterType)(e.target.value)}
-            style={{
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: "8px",
-              padding: "8px 16px",
-              color: "white",
-              cursor: "pointer",
-            }}
-          >
-            <option value="all">All Types</option>
-            <option value="income">Income Only</option>
-            <option value="expense">Expenses Only</option>
-          </select>
-
-          {/* Month Filter */}
-          <select
-            value={filterMonth}
-            onChange={(e) => handleFilterChange(setFilterMonth)(e.target.value)}
-            style={{
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: "8px",
-              padding: "8px 16px",
-              color: "white",
-              cursor: "pointer",
-            }}
-          >
-            <option value="all">All Months</option>
-            {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={i}>
-                {new Date(2024, i).toLocaleString("default", { month: "long" })}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Export Section */}
-      <div
-        style={{
-          background: "rgba(255,255,255,0.1)",
-          backdropFilter: "blur(10px)",
-          borderRadius: "16px",
-          padding: "16px 24px",
-          border: "1px solid rgba(255,255,255,0.2)",
+        onExportPDF={() => {
+          const exportData = filteredTransactions.filter((t) => {
+            if (!exportStartDate && !exportEndDate) return true;
+            const tDate = new Date(t.date);
+            if (exportStartDate && tDate < new Date(exportStartDate))
+              return false;
+            if (exportEndDate && tDate > new Date(exportEndDate)) return false;
+            return true;
+          });
+          exportToPDF(exportData, categories, accounts, user?.name || "User");
         }}
-      >
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {/* Export Header */}
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <Download size={20} color="#9ca3af" />
-            <span style={{ color: "#d1d5db", fontWeight: "500" }}>
-              Export Transactions
-            </span>
-          </div>
-
-          {/* Date Range Inputs */}
-          <div
-            style={{
-              display: "flex",
-              gap: "12px",
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
-            >
-              <label style={{ color: "#9ca3af", fontSize: "12px" }}>
-                From Date
-              </label>
-              <input
-                type="date"
-                value={exportStartDate}
-                onChange={(e) => setExportStartDate(e.target.value)}
-                style={{
-                  background: "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: "8px",
-                  padding: "8px 12px",
-                  color: "white",
-                  fontSize: "14px",
-                  cursor: "pointer",
-                }}
-              />
-            </div>
-
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
-            >
-              <label style={{ color: "#9ca3af", fontSize: "12px" }}>
-                To Date
-              </label>
-              <input
-                type="date"
-                value={exportEndDate}
-                onChange={(e) => setExportEndDate(e.target.value)}
-                style={{
-                  background: "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: "8px",
-                  padding: "8px 12px",
-                  color: "white",
-                  fontSize: "14px",
-                  cursor: "pointer",
-                }}
-              />
-            </div>
-
-            {(exportStartDate || exportEndDate) && (
-              <button
-                onClick={() => {
-                  setExportStartDate("");
-                  setExportEndDate("");
-                }}
-                style={{
-                  background: "rgba(239,68,68,0.2)",
-                  color: "#f87171",
-                  padding: "8px 12px",
-                  borderRadius: "8px",
-                  border: "1px solid rgba(239,68,68,0.3)",
-                  cursor: "pointer",
-                  fontSize: "12px",
-                  marginTop: "18px",
-                }}
-              >
-                Clear Dates
-              </button>
-            )}
-          </div>
-
-          {/* Export Buttons */}
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <button
-              onClick={() => {
-                const exportData = filteredTransactions.filter((t) => {
-                  if (!exportStartDate && !exportEndDate) return true;
-                  const tDate = new Date(t.date);
-                  if (exportStartDate && tDate < new Date(exportStartDate))
-                    return false;
-                  if (exportEndDate && tDate > new Date(exportEndDate))
-                    return false;
-                  return true;
-                });
-                exportToCSV(
-                  exportData,
-                  categories,
-                  accounts,
-                  user?.name || "User"
-                );
-              }}
-              style={{
-                background: "rgba(34,197,94,0.2)",
-                color: "#4ade80",
-                padding: "10px 20px",
-                borderRadius: "8px",
-                border: "1px solid rgba(34,197,94,0.3)",
-                cursor: "pointer",
-                fontWeight: "500",
-                fontSize: "14px",
-              }}
-            >
-              📄 Export CSV
-            </button>
-
-            <button
-              onClick={() => {
-                const exportData = filteredTransactions.filter((t) => {
-                  if (!exportStartDate && !exportEndDate) return true;
-                  const tDate = new Date(t.date);
-                  if (exportStartDate && tDate < new Date(exportStartDate))
-                    return false;
-                  if (exportEndDate && tDate > new Date(exportEndDate))
-                    return false;
-                  return true;
-                });
-                exportToPDF(
-                  exportData,
-                  categories,
-                  accounts,
-                  user?.name || "User"
-                );
-              }}
-              style={{
-                background: "rgba(239,68,68,0.2)",
-                color: "#f87171",
-                padding: "10px 20px",
-                borderRadius: "8px",
-                border: "1px solid rgba(239,68,68,0.3)",
-                cursor: "pointer",
-                fontWeight: "500",
-                fontSize: "14px",
-              }}
-            >
-              📑 Export PDF
-            </button>
-
-            <span
-              style={{
-                color: "#9ca3af",
-                fontSize: "13px",
-                fontStyle: "italic",
-              }}
-            >
-              {(() => {
-                const exportData = filteredTransactions.filter((t) => {
-                  if (!exportStartDate && !exportEndDate) return true;
-                  const tDate = new Date(t.date);
-                  if (exportStartDate && tDate < new Date(exportStartDate))
-                    return false;
-                  if (exportEndDate && tDate > new Date(exportEndDate))
-                    return false;
-                  return true;
-                });
-                return `${exportData.length} transaction${
-                  exportData.length !== 1 ? "s" : ""
-                } will be exported`;
-              })()}
-            </span>
-          </div>
-        </div>
-      </div>
+        filteredCount={
+          filteredTransactions.filter((t) => {
+            if (!exportStartDate && !exportEndDate) return true;
+            const tDate = new Date(t.date);
+            if (exportStartDate && tDate < new Date(exportStartDate))
+              return false;
+            if (exportEndDate && tDate > new Date(exportEndDate)) return false;
+            return true;
+          }).length
+        }
+      />
 
       {/* TRANSACTIONS TABLE */}
       <div
@@ -443,94 +204,13 @@ const TransactionTable = ({ transactions, categories, accounts, onDelete }) => {
             {/* TABLE BODY */}
             <tbody>
               {paginatedTransactions.map((transaction) => (
-                <tr
+                <TransactionRow
                   key={transaction.id}
-                  style={{
-                    borderTop: "1px solid rgba(255,255,255,0.1)",
-                    transition: "background 0.2s",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background =
-                      "rgba(255,255,255,0.05)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "transparent")
-                  }
-                >
-                  {/* Date */}
-                  <td style={{ padding: "16px 24px", color: "#d1d5db" }}>
-                    {formatDate(transaction.date)}
-                  </td>
-
-                  {/* Description */}
-                  <td
-                    style={{
-                      padding: "16px 24px",
-                      color: "white",
-                      fontWeight: "500",
-                    }}
-                  >
-                    {transaction.description}
-                  </td>
-
-                  {/* Category Badge */}
-                  <td style={{ padding: "16px 24px" }}>
-                    <span
-                      style={{
-                        padding: "4px 12px",
-                        borderRadius: "9999px",
-                        fontSize: "14px",
-                        fontWeight: "500",
-                        backgroundColor:
-                          getCategoryColor(transaction.category_id) + "66",
-                        color: getCategoryColor(transaction.category_id),
-                      }}
-                    >
-                      {getCategoryName(transaction.category_id)}
-                    </span>
-                  </td>
-
-                  {/* Account */}
-                  <td style={{ padding: "16px 24px", color: "#d1d5db" }}>
-                    {getAccountName(transaction.account_id)}
-                  </td>
-
-                  {/* Amount - Green for income, Red for expense */}
-                  <td
-                    style={{
-                      padding: "16px 24px",
-                      textAlign: "right",
-                      fontWeight: "bold",
-                      color:
-                        transaction.type === "income" ? "#4ade80" : "#f87171",
-                    }}
-                  >
-                    {transaction.type === "income" ? "+" : "-"}$
-                    {parseFloat(transaction.amount).toFixed(2)}
-                  </td>
-
-                  {/* Delete Button */}
-                  <td style={{ padding: "16px 24px", textAlign: "right" }}>
-                    <button
-                      onClick={() => onDelete(transaction.id)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        color: "#f87171",
-                        transition: "color 0.2s",
-                      }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.color = "#ef4444")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.color = "#f87171")
-                      }
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  </td>
-                </tr>
+                  transaction={transaction}
+                  categories={categories}
+                  accounts={accounts}
+                  onDelete={handleDelete}
+                />
               ))}
             </tbody>
           </table>

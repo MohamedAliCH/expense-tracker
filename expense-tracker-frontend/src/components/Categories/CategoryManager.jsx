@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { Plus, Edit2, Trash2, X } from "lucide-react";
-import {
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from "../../utils/api";
+import { Plus, X } from "lucide-react";
+import { useApp } from "../../contexts/AppContext";
+import CategoryItem from "./CategoryItem";
 
-const CategoryManager = ({ categories, onUpdate }) => {
+const CategoryManager = () => {
+  const { categories, addCategory, editCategory, removeCategory } = useApp();
+
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({
@@ -21,15 +20,14 @@ const CategoryManager = ({ categories, onUpdate }) => {
 
     try {
       if (editingCategory) {
-        await updateCategory(editingCategory.id, formData);
+        await editCategory(editingCategory.id, formData);
       } else {
-        await createCategory(formData);
+        await addCategory(formData);
       }
 
       setShowModal(false);
       setEditingCategory(null);
       setFormData({ name: "", color: "#a855f7", type: "expense", emoji: "📊" });
-      onUpdate();
     } catch (error) {
       console.error("Error saving category:", error);
       alert("Failed to save category");
@@ -57,8 +55,7 @@ const CategoryManager = ({ categories, onUpdate }) => {
     }
 
     try {
-      await deleteCategory(id);
-      onUpdate();
+      await removeCategory(id);
     } catch (error) {
       console.error("Error deleting category:", error);
       alert("Failed to delete category");
@@ -140,67 +137,12 @@ const CategoryManager = ({ categories, onUpdate }) => {
             style={{ display: "flex", flexDirection: "column", gap: "12px" }}
           >
             {expenseCategories.map((cat) => (
-              <div
+              <CategoryItem
                 key={cat.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px",
-                  background: "rgba(255,255,255,0.05)",
-                  borderRadius: "8px",
-                }}
-              >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
-                >
-                  <div
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "8px",
-                      background: `${cat.color}33`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                    }}
-                  >
-                    {cat.emoji || "📊"}
-                  </div>
-                  <span style={{ color: "white", fontWeight: "500" }}>
-                    {cat.name}
-                  </span>
-                </div>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button
-                    onClick={() => handleEdit(cat)}
-                    style={{
-                      background: "rgba(168,85,247,0.2)",
-                      border: "none",
-                      borderRadius: "6px",
-                      padding: "6px",
-                      cursor: "pointer",
-                      color: "#a855f7",
-                    }}
-                  >
-                    <Edit2 size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(cat.id)}
-                    style={{
-                      background: "rgba(239,68,68,0.2)",
-                      border: "none",
-                      borderRadius: "6px",
-                      padding: "6px",
-                      cursor: "pointer",
-                      color: "#ef4444",
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
+                category={cat}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         </div>
@@ -229,67 +171,12 @@ const CategoryManager = ({ categories, onUpdate }) => {
             style={{ display: "flex", flexDirection: "column", gap: "12px" }}
           >
             {incomeCategories.map((cat) => (
-              <div
+              <CategoryItem
                 key={cat.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px",
-                  background: "rgba(255,255,255,0.05)",
-                  borderRadius: "8px",
-                }}
-              >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
-                >
-                  <div
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "8px",
-                      background: `${cat.color}33`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                    }}
-                  >
-                    {cat.emoji || "📊"}
-                  </div>
-                  <span style={{ color: "white", fontWeight: "500" }}>
-                    {cat.name}
-                  </span>
-                </div>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button
-                    onClick={() => handleEdit(cat)}
-                    style={{
-                      background: "rgba(168,85,247,0.2)",
-                      border: "none",
-                      borderRadius: "6px",
-                      padding: "6px",
-                      cursor: "pointer",
-                      color: "#a855f7",
-                    }}
-                  >
-                    <Edit2 size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(cat.id)}
-                    style={{
-                      background: "rgba(239,68,68,0.2)",
-                      border: "none",
-                      borderRadius: "6px",
-                      padding: "6px",
-                      cursor: "pointer",
-                      color: "#ef4444",
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
+                category={cat}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         </div>

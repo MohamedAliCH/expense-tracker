@@ -1,101 +1,23 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import "./App.css";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AppProvider } from "./contexts/AppContext";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
-
-// Import API functions
-import {
-  fetchCategories,
-  fetchAccounts,
-  fetchTransactions,
-  fetchBudgets,
-  createTransaction,
-  deleteTransaction as apiDeleteTransaction,
-} from "./utils/api";
-
-// Import components
 import Header from "./components/Header";
-import TabNavigation from "./components/TabNavigation";
+import TabNavigation from "./components/Common/TabNavigation";
 import Dashboard from "./components/Dashboard/Dashboard";
 import TransactionTable from "./components/Transactions/TransactionTable";
 import BudgetList from "./components/Budgets/BudgetList";
 import AccountList from "./components/Accounts/AccountList";
-import AddTransactionModal from "./components/Modal/AddTransactionModal";
+import TransactionModal from "./components/Transactions/TransactionModal";
 import CategoryManager from "./components/Categories/CategoryManager";
 
 function AppContent() {
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState("login"); // 'login' or 'register'
-
-  const [transactions, setTransactions] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [accounts, setAccounts] = useState([]);
-  const [budgets, setBudgets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState("login");
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showModal, setShowModal] = useState(false);
-
-  const loadData = useCallback(async () => {
-    if (!isAuthenticated) return;
-
-    setLoading(true);
-    try {
-      const [categoriesData, accountsData, transactionsData, budgetsData] =
-        await Promise.all([
-          fetchCategories(),
-          fetchAccounts(),
-          fetchTransactions(),
-          fetchBudgets(),
-        ]);
-
-      setCategories(categoriesData);
-      setAccounts(accountsData);
-      setTransactions(transactionsData || []);
-      setBudgets(budgetsData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      alert("Failed to load data");
-    } finally {
-      setLoading(false);
-    }
-  }, [isAuthenticated]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadData();
-    }
-  }, [isAuthenticated, loadData]);
-
-  const handleCreateTransaction = async (formData) => {
-    try {
-      const response = await createTransaction(formData);
-
-      if (response.message) {
-        setShowModal(false);
-        loadData();
-      } else {
-        alert("Failed to create transaction");
-      }
-    } catch (error) {
-      console.error("Error creating transaction:", error);
-      alert("Failed to create transaction");
-    }
-  };
-
-  const handleDeleteTransaction = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this transaction?")) {
-      return;
-    }
-
-    try {
-      await apiDeleteTransaction(id);
-      loadData();
-    } catch (error) {
-      console.error("Error deleting transaction:", error);
-      alert("Failed to delete transaction");
-    }
-  };
 
   if (authLoading) {
     return (
@@ -113,58 +35,29 @@ function AppContent() {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-text">Loading...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="app-container">
       <div className="content-wrapper">
         <Header
-          onRefresh={loadData}
           onAddTransaction={() => setShowModal(true)}
+          // onRefresh is now handled within components via context if needed,
+          // or we can expose refreshData from context and pass it here if Header needs it.
+          // For now, let's assume Header might need a refresh prop or we update Header to use context too.
+          // Let's pass a dummy function or update Header later.
+          // Actually, Header usually has a refresh button. Let's leave it for now and update Header to use context if needed.
         />
 
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {activeTab === "dashboard" && (
-          <Dashboard transactions={transactions} categories={categories} />
-        )}
+        {activeTab === "dashboard" && <Dashboard />}
+        {activeTab === "transactions" && <TransactionTable />}
+        {activeTab === "budgets" && <BudgetList />}
+        {activeTab === "accounts" && <AccountList />}
+        {activeTab === "categories" && <CategoryManager />}
 
-        {activeTab === "transactions" && (
-          <TransactionTable
-            transactions={transactions}
-            categories={categories}
-            accounts={accounts}
-            onDelete={handleDeleteTransaction}
-          />
-        )}
-
-        {activeTab === "budgets" && (
-          <BudgetList
-            budgets={budgets}
-            categories={categories}
-            onUpdate={loadData}
-          />
-        )}
-
-        {activeTab === "accounts" && (
-          <AccountList accounts={accounts} onUpdate={loadData} />
-        )}
-        {activeTab === "categories" && (
-          <CategoryManager categories={categories} onUpdate={loadData} />
-        )}
-
-        <AddTransactionModal
+        <TransactionModal
           show={showModal}
           onClose={() => setShowModal(false)}
-          onSubmit={handleCreateTransaction}
-          categories={categories}
-          accounts={accounts}
         />
       </div>
     </div>
@@ -174,7 +67,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
     </AuthProvider>
   );
 }

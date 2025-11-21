@@ -123,7 +123,12 @@ export const exportToPDF = (
 /**
  * Export analytics to PDF
  */
-export const exportAnalyticsToPDF = (analytics, categoryBreakdown) => {
+export const exportAnalyticsToPDF = (
+  financialSummary,
+  monthlyData,
+  categoryBreakdown,
+  transactions
+) => {
   const doc = new jsPDF();
 
   // Title
@@ -138,11 +143,17 @@ export const exportAnalyticsToPDF = (analytics, categoryBreakdown) => {
   doc.setFontSize(14);
   doc.text("Summary", 14, 45);
   doc.setFontSize(12);
-  doc.text(`Total Income: $${analytics.income.toFixed(2)}`, 14, 55);
-  doc.text(`Total Expenses: $${analytics.expense.toFixed(2)}`, 14, 62);
-  doc.text(`Net Balance: $${analytics.balance.toFixed(2)}`, 14, 69);
+  doc.text(`Total Income: $${financialSummary.totalIncome.toFixed(2)}`, 14, 55);
   doc.text(
-    `Total Transactions: ${analytics.income_count + analytics.expense_count}`,
+    `Total Expenses: $${financialSummary.totalExpense.toFixed(2)}`,
+    14,
+    62
+  );
+  doc.text(`Net Balance: $${financialSummary.balance.toFixed(2)}`, 14, 69);
+  doc.text(
+    `Total Transactions: ${
+      financialSummary.incomeCount + financialSummary.expenseCount
+    }`,
     14,
     76
   );
@@ -150,13 +161,15 @@ export const exportAnalyticsToPDF = (analytics, categoryBreakdown) => {
   // Category Breakdown
   if (categoryBreakdown.length > 0) {
     doc.setFontSize(14);
-    doc.text("Category Breakdown", 14, 90);
+    doc.text("Expense Breakdown by Category", 14, 90);
 
-    const categoryData = categoryBreakdown.map((cat) => [
-      cat.name,
-      `$${cat.total.toFixed(2)}`,
-      `${((cat.total / analytics.expense) * 100).toFixed(1)}%`,
-    ]);
+    const categoryData = categoryBreakdown
+      .slice(0, 10)
+      .map((cat) => [
+        cat.name,
+        `$${cat.total.toFixed(2)}`,
+        `${((cat.total / financialSummary.totalExpense) * 100).toFixed(1)}%`,
+      ]);
 
     autoTable(doc, {
       head: [["Category", "Amount", "Percentage"]],

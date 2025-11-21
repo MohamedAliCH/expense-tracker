@@ -1,121 +1,139 @@
-/**
- * DASHBOARD COMPONENT (MAIN)
- *
- * This is the main dashboard view that orchestrates all dashboard components.
- * It receives data from parent (App.jsx) and calculates derived data.
- *
- * Responsibilities:
- * - Calculate totals (income, expenses, balance)
- * - Prepare data for charts
- * - Calculate category breakdown
- * - Generate monthly trend data
- *
- * Props:
- * - transactions: array - All user transactions
- * - categories: array - All user categories
- */
-
 import React from "react";
+import { useApp } from "../../contexts/AppContext";
 import SummaryCards from "./SummaryCards";
-import Charts from "./Charts";
-import TopCategories from "./TopCategories";
+import ChartSection from "./ChartSection";
+import CategorySpendingList from "./CategorySpendingList";
 import { Download } from "lucide-react";
 import { exportAnalyticsToPDF } from "../../utils/Export";
 
-const Dashboard = ({ transactions, categories }) => {
-  // ==========================================
-  // CALCULATE TOTALS
-  // ==========================================
+const Dashboard = () => {
+  const {
+    financialSummary,
+    monthlyData,
+    categoryBreakdown,
+    transactions,
+    loading,
+  } = useApp();
 
-  // Sum all income transactions
-  const totalIncome = transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          padding: "48px",
+          color: "white",
+        }}
+      >
+        Loading dashboard data...
+      </div>
+    );
+  }
 
-  // Sum all expense transactions
-  const totalExpense = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  const totalExpense = financialSummary.totalExpense;
 
-  // Count transactions by type
-  const transactionCounts = {
-    income: transactions.filter((t) => t.type === "income").length,
-    expense: transactions.filter((t) => t.type === "expense").length,
+  const handleExportPDF = () => {
+    exportAnalyticsToPDF(
+      financialSummary,
+      monthlyData,
+      categoryBreakdown,
+      transactions
+    );
   };
-
-  // ==========================================
-  // CALCULATE CATEGORY BREAKDOWN
-  // ==========================================
-
-  const categoryBreakdown = categories
-    .filter((c) => c.type === "expense") // Only expense categories
-    .map((cat) => {
-      // Calculate total spent in this category
-      const total = transactions
-        .filter((t) => t.type === "expense" && t.category_id === cat.id)
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-
-      return {
-        ...cat, // Keep all category properties (id, name, color)
-        total, // Add total spent
-        value: total, // For pie chart dataKey
-      };
-    })
-    .filter((c) => c.total > 0) // Remove categories with no spending
-    .sort((a, b) => b.total - a.total); // Sort highest to lowest
-
-  // ==========================================
-  // CALCULATE MONTHLY TREND (Last 6 Months)
-  // ==========================================
-
-  const monthlyData = Array.from({ length: 6 }, (_, i) => {
-    // Create date object for each of last 6 months
-    const date = new Date();
-    date.setMonth(date.getMonth() - (5 - i)); // Go back 5,4,3,2,1,0 months
-    const month = date.toLocaleString("default", { month: "short" }); // "Jan", "Feb", etc.
-
-    // Filter transactions for this specific month and year
-    const monthTransactions = transactions.filter((t) => {
-      const tDate = new Date(t.date);
-      return (
-        tDate.getMonth() === date.getMonth() &&
-        tDate.getFullYear() === date.getFullYear()
-      );
-    });
-
-    // Calculate income and expenses for this month
-    const income = monthTransactions
-      .filter((t) => t.type === "income")
-      .reduce((s, t) => s + parseFloat(t.amount), 0);
-
-    const expense = monthTransactions
-      .filter((t) => t.type === "expense")
-      .reduce((s, t) => s + parseFloat(t.amount), 0);
-
-    return { month, income, expense };
-  });
-
-  // ==========================================
-  // RENDER DASHBOARD
-  // ==========================================
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-      {/* Summary cards at the top */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "white" }}>
+          Dashboard Overview
+        </h2>
+        <button
+          onClick={handleExportPDF}
+          style={{
+            background: "rgba(255,255,255,0.1)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            color: "white",
+            padding: "8px 16px",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            cursor: "pointer",
+            transition: "all 0.2s",
+          }}
+        >
+          <Download size={16} />
+          Export Report
+        </button>
+      </div>
+
+      {/* Summary Cards */}
       <SummaryCards
-        totalIncome={totalIncome}
-        totalExpense={totalExpense}
-        transactionCounts={transactionCounts}
+        totalIncome={financialSummary.totalIncome}
+        totalExpense={financialSummary.totalExpense}
+        transactionCounts={{
+          income: financialSummary.incomeCount || 0,
+          expense: financialSummary.expenseCount || 0,
+        }}
       />
 
       {/* Charts in the middle - Bar chart and Pie chart */}
-      <Charts monthlyData={monthlyData} categoryBreakdown={categoryBreakdown} />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+          gap: "24px",
+        }}
+      >
+        {/* Monthly Trend Bar Chart */}
+        <ChartSection
+          title="Monthly Trend (Last 6 Months)"
+          type="bar"
+          data={monthlyData}
+          dataKeys={["income", "expense"]}
+          colors={["#4ade80", "#f87171"]}
+        />
+
+        {/* Category Breakdown Pie Chart */}
+        <ChartSection
+          title="Expense by Category"
+          type="pie"
+          data={categoryBreakdown}
+        />
+      </div>
 
       {/* Top spending categories at the bottom */}
-      <TopCategories
-        categories={categoryBreakdown}
-        totalExpense={totalExpense}
-      />
+      <div
+        style={{
+          background: "rgba(255,255,255,0.1)",
+          backdropFilter: "blur(10px)",
+          borderRadius: "16px",
+          padding: "24px",
+          border: "1px solid rgba(255,255,255,0.2)",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "20px",
+            fontWeight: "bold",
+            color: "white",
+            marginBottom: "16px",
+          }}
+        >
+          Top Spending Categories
+        </h3>
+
+        <CategorySpendingList
+          categories={categoryBreakdown.slice(0, 5)}
+          totalExpense={totalExpense}
+        />
+      </div>
     </div>
   );
 };

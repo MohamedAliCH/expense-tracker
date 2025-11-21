@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { Plus, Edit2, Trash2, X } from "lucide-react";
-import { createBudget, updateBudget, deleteBudget } from "../../utils/api";
+import { Plus, X } from "lucide-react";
+import { useApp } from "../../contexts/AppContext";
+import BudgetCard from "./BudgetCard";
 
-const BudgetList = ({ budgets, categories, onUpdate }) => {
+const BudgetList = () => {
+  const { budgetAnalysis, categories, addBudget, editBudget, removeBudget } =
+    useApp();
+
   const [showModal, setShowModal] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
   const [formData, setFormData] = useState({
@@ -12,31 +16,14 @@ const BudgetList = ({ budgets, categories, onUpdate }) => {
     start_date: new Date().toISOString().split("T")[0],
   });
 
-  const budgetAnalysis = budgets.map((budget) => {
-    const category = categories.find((c) => c.id === budget.category_id);
-    return {
-      id: budget.id,
-      category: budget.category?.name || category?.name || "Unknown",
-      color: budget.category?.color || category?.color || "#6b7280",
-      emoji: budget.category?.emoji || category?.emoji || "📊",
-      amount: parseFloat(budget.amount),
-      spent: parseFloat(budget.spent || 0),
-      percentage: budget.percentage || 0,
-      remaining: parseFloat(budget.remaining || 0),
-      category_id: budget.category_id,
-      period: budget.period,
-      start_date: budget.start_date,
-    };
-  });
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       if (editingBudget) {
-        await updateBudget(editingBudget.id, formData);
+        await editBudget(editingBudget.id, formData);
       } else {
-        await createBudget(formData);
+        await addBudget(formData);
       }
 
       setShowModal(false);
@@ -47,7 +34,6 @@ const BudgetList = ({ budgets, categories, onUpdate }) => {
         period: "monthly",
         start_date: new Date().toISOString().split("T")[0],
       });
-      onUpdate();
     } catch (error) {
       console.error("Error saving budget:", error);
       alert("Failed to save budget");
@@ -71,8 +57,7 @@ const BudgetList = ({ budgets, categories, onUpdate }) => {
     }
 
     try {
-      await deleteBudget(id);
-      onUpdate();
+      await removeBudget(id);
     } catch (error) {
       console.error("Error deleting budget:", error);
       alert("Failed to delete budget");
@@ -128,204 +113,12 @@ const BudgetList = ({ budgets, categories, onUpdate }) => {
         }}
       >
         {budgetAnalysis.map((budget) => (
-          <div
+          <BudgetCard
             key={budget.id}
-            style={{
-              background: "rgba(255,255,255,0.1)",
-              backdropFilter: "blur(10px)",
-              borderRadius: "16px",
-              padding: "24px",
-              border: "1px solid rgba(255,255,255,0.2)",
-              position: "relative",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "16px",
-              }}
-            >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "12px" }}
-              >
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "8px",
-                    background: `${budget.color}33`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "20px",
-                  }}
-                >
-                  {budget.emoji || "📊"}
-                </div>
-                <span
-                  style={{
-                    color: "white",
-                    fontWeight: "600",
-                    fontSize: "18px",
-                  }}
-                >
-                  {budget.category}
-                </span>
-              </div>
-
-              <div
-                style={{ display: "flex", gap: "8px", alignItems: "center" }}
-              >
-                <span
-                  style={{
-                    fontWeight: "bold",
-                    fontSize: "20px",
-                    color: budget.percentage > 100 ? "#f87171" : "#4ade80",
-                  }}
-                >
-                  {budget.percentage.toFixed(0)}%
-                </span>
-                <button
-                  onClick={() => handleEdit(budget)}
-                  style={{
-                    background: "rgba(168,85,247,0.2)",
-                    border: "none",
-                    borderRadius: "6px",
-                    padding: "6px",
-                    cursor: "pointer",
-                    color: "#a855f7",
-                  }}
-                >
-                  <Edit2 size={16} />
-                </button>
-                <button
-                  onClick={() => handleDelete(budget.id)}
-                  style={{
-                    background: "rgba(239,68,68,0.2)",
-                    border: "none",
-                    borderRadius: "6px",
-                    padding: "6px",
-                    cursor: "pointer",
-                    color: "#ef4444",
-                  }}
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-                marginBottom: "16px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: "14px",
-                }}
-              >
-                <span style={{ color: "#9ca3af" }}>Spent</span>
-                <span style={{ color: "white", fontWeight: "500" }}>
-                  ${budget.spent.toFixed(2)}
-                </span>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: "14px",
-                }}
-              >
-                <span style={{ color: "#9ca3af" }}>Budget</span>
-                <span style={{ color: "white", fontWeight: "500" }}>
-                  ${budget.amount.toFixed(2)}
-                </span>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: "14px",
-                }}
-              >
-                <span style={{ color: "#9ca3af" }}>Remaining</span>
-                <span
-                  style={{
-                    fontWeight: "500",
-                    color: budget.remaining >= 0 ? "#4ade80" : "#f87171",
-                  }}
-                >
-                  ${Math.abs(budget.remaining).toFixed(2)}
-                </span>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: "14px",
-                  marginTop: "4px",
-                }}
-              >
-                <span style={{ color: "#9ca3af" }}>Period</span>
-                <span
-                  style={{
-                    color: "white",
-                    fontWeight: "500",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  {budget.period}
-                </span>
-              </div>
-            </div>
-
-            <div
-              style={{
-                width: "100%",
-                background: "rgba(255,255,255,0.1)",
-                borderRadius: "9999px",
-                height: "12px",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  height: "12px",
-                  borderRadius: "9999px",
-                  width: `${Math.min(budget.percentage, 100)}%`,
-                  backgroundColor:
-                    budget.percentage > 100 ? "#ef4444" : budget.color,
-                  transition: "width 0.3s ease",
-                }}
-              />
-            </div>
-
-            {budget.percentage > 90 && (
-              <p
-                style={{
-                  color: "#fbbf24",
-                  fontSize: "14px",
-                  marginTop: "12px",
-                  fontWeight: "500",
-                }}
-              >
-                ⚠️{" "}
-                {budget.percentage > 100
-                  ? "Budget exceeded!"
-                  : "Almost at budget limit"}
-              </p>
-            )}
-          </div>
+            budget={budget}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         ))}
       </div>
 
