@@ -1,0 +1,258 @@
+/**
+ * GLOBAL STYLES FOR EXPENSE TRACKER
+ * 
+ * This file contains:
+ * - Reset styles
+ * - Global app styles
+ * - Loading screen styles
+ * - Form element styles
+ */
+
+/* ==========================================
+   RESET & BASE STYLES
+   ========================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================
+   APP CONTAINER
+   ========================================== */
+
+.app-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+  padding: 24px;
+}
+
+.content-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ==========================================
+   LOADING SCREEN
+   ========================================== */
+
+.loading-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-text {
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* ==========================================
+   FORM ELEMENTS
+   ========================================== */
+
+/* Style select dropdowns */
+select {
+  color: white;
+  cursor: pointer;
+}
+
+select option {
+  background-color: #1e293b;
+  color: white;
+  padding: 8px;
+}
+
+/* Style date picker calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* Style number input arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+/* Remove outline on focus */
+input:focus,
+select:focus,
+button:focus {
+  outline: none;
+}
+
+/* ==========================================
+   SCROLLBAR STYLING
+   ========================================== */
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.7);
+}
+
+/* ==========================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================== */
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 16px;
+  }
+  
+  .content-wrapper {
+    padding: 0;
+  }
+}
+
+/* ==========================================
+   UTILITY CLASSES
+   ========================================== */
+
+.text-center {
+  text-align: center;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.mt-4 {
+  margin-top: 16px;
+}
+
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+/* ==========================================
+   DATE PICKER STYLES
+   ========================================== */
+
+.react-datepicker {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 8px !important;
+  font-family: inherit !important;
+}
+
+.react-datepicker__header {
+  background-color: #334155 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker__day {
+  color: white !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #a855f7 !important;
+  color: white !important;
+}
+
+.react-datepicker__day--in-range {
+  background-color: rgba(168, 85, 247, 0.2) !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white !important;
+}
+
+.react-datepicker__navigation:hover *::before {
+  border-color: #a855f7 !important;
+}
+/* ==========================================
+   DATE PICKER STYLES
+   ========================================== */
+
+.react-datepicker {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 8px !important;
+  font-family: inherit !important;
+}
+
+.react-datepicker__header {
+  background-color: #334155 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker__day {
+  color: white !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #a855f7 !important;
+  color: white !important;
+}
+
+.react-datepicker__day--in-range {
+  background-color: rgba(168, 85, 247, 0.2) !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white !important;
+}
+
+.react-datepicker__navigation:hover *::before {
+  border-color: #a855f7 !important;
+}
