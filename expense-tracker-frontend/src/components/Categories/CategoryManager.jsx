@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { useApp } from "../../contexts/AppContext";
+import { useToast } from "../../contexts/ToastContext";
 import CategoryItem from "./CategoryItem";
+import ConfirmDialog from "../ConfirmDialog";
 
 const CategoryManager = () => {
   const { categories, addCategory, editCategory, removeCategory } = useApp();
+  const { showToast } = useToast();
 
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null });
   const [formData, setFormData] = useState({
     name: "",
     color: "#a855f7",
@@ -21,8 +25,10 @@ const CategoryManager = () => {
     try {
       if (editingCategory) {
         await editCategory(editingCategory.id, formData);
+        showToast("Category updated successfully!", "success");
       } else {
         await addCategory(formData);
+        showToast("Category created successfully!", "success");
       }
 
       setShowModal(false);
@@ -30,7 +36,7 @@ const CategoryManager = () => {
       setFormData({ name: "", color: "#a855f7", type: "expense", emoji: "📊" });
     } catch (error) {
       console.error("Error saving category:", error);
-      alert("Failed to save category");
+      showToast(error.message || "Failed to save category", "error");
     }
   };
 
@@ -46,19 +52,17 @@ const CategoryManager = () => {
   };
 
   const handleDelete = async (id) => {
-    if (
-      !window.confirm(
-        "Are you sure? This will affect all related transactions."
-      )
-    ) {
-      return;
-    }
+    setDeleteConfirm({ show: true, id });
+  };
 
+  const confirmDelete = async () => {
     try {
-      await removeCategory(id);
+      await removeCategory(deleteConfirm.id);
+      showToast("Category deleted successfully!", "success");
+      setDeleteConfirm({ show: false, id: null });
     } catch (error) {
       console.error("Error deleting category:", error);
-      alert("Failed to delete category");
+      showToast(error.message || "Failed to delete category", "error");
     }
   };
 
@@ -201,8 +205,8 @@ const CategoryManager = () => {
             style={{
               background: "#1e293b",
               borderRadius: "16px",
-              padding: "32px",
-              maxWidth: "400px",
+              padding: "24px",
+              maxWidth: "450px",
               width: "100%",
               border: "1px solid rgba(255,255,255,0.2)",
             }}
@@ -212,7 +216,7 @@ const CategoryManager = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: "24px",
+                marginBottom: "20px",
               }}
             >
               <h3
@@ -234,7 +238,7 @@ const CategoryManager = () => {
             </div>
 
             <div
-              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
             >
               <div>
                 <label
@@ -242,29 +246,114 @@ const CategoryManager = () => {
                     display: "block",
                     color: "#d1d5db",
                     marginBottom: "8px",
+                    fontSize: "14px",
                   }}
                 >
-                  Emoji
+                  Icon
                 </label>
-                <input
-                  type="text"
-                  value={formData.emoji}
-                  onChange={(e) =>
-                    setFormData({ ...formData, emoji: e.target.value })
-                  }
+                <div
                   style={{
-                    width: "100%",
-                    background: "rgba(255,255,255,0.1)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    borderRadius: "8px",
-                    padding: "12px 16px",
-                    color: "white",
-                    fontSize: "24px",
-                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
                   }}
-                  placeholder="📊"
-                  maxLength="2"
-                />
+                >
+                  {/* Emoji input */}
+                  <input
+                    type="text"
+                    value={formData.emoji}
+                    onChange={(e) =>
+                      setFormData({ ...formData, emoji: e.target.value })
+                    }
+                    style={{
+                      width: "100%",
+                      background: "rgba(255,255,255,0.1)",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                      borderRadius: "8px",
+                      padding: "12px 16px",
+                      color: "white",
+                      fontSize: "24px",
+                      textAlign: "center",
+                    }}
+                    placeholder="Type an emoji or click below"
+                    maxLength="4"
+                  />
+
+                  {/* Popular emoji suggestions */}
+                  <div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#9ca3af",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      Popular choices:
+                    </div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(6, 1fr)",
+                        gap: "8px",
+                      }}
+                    >
+                      {[
+                        "🍽️",
+                        "🚗",
+                        "🛍️",
+                        "💡",
+                        "🏥",
+                        "🎮",
+                        "💰",
+                        "💼",
+                        "📈",
+                        "🏠",
+                        "✈️",
+                        "🎓",
+                      ].map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, emoji })}
+                          style={{
+                            background:
+                              formData.emoji === emoji
+                                ? "rgba(168,85,247,0.3)"
+                                : "rgba(255,255,255,0.05)",
+                            border:
+                              formData.emoji === emoji
+                                ? "2px solid #a855f7"
+                                : "1px solid rgba(255,255,255,0.1)",
+                            borderRadius: "8px",
+                            padding: "8px",
+                            fontSize: "24px",
+                            cursor: "pointer",
+                            transition: "all 0.2s",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = "scale(1.1)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = "scale(1)";
+                          }}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#6b7280",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    💡 Tip: On Windows, press <strong>Win + .</strong> to open
+                    emoji picker
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -401,6 +490,15 @@ const CategoryManager = () => {
           </div>
         </div>
       )}
+
+      {/* CONFIRMATION DIALOG */}
+      <ConfirmDialog
+        show={deleteConfirm.show}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? Make sure it has no transactions or budgets associated with it."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm({ show: false, id: null })}
+      />
     </div>
   );
 };

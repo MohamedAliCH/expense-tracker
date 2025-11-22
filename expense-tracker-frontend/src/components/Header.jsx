@@ -5,13 +5,13 @@ import { useApp } from "../contexts/AppContext";
 
 const Header = ({ onAddTransaction }) => {
   const { user, logout } = useAuth();
-  const { loadData } = useApp();
+  const { refreshData } = useApp();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadData();
+    await refreshData();
     setTimeout(() => setRefreshing(false), 500);
   };
 

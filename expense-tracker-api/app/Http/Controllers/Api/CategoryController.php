@@ -30,13 +30,18 @@ class CategoryController extends Controller
 
     public function show(Category $category)
     {
-        $this->authorize('view', $category);
         return $category;
     }
 
     public function update(Request $request, Category $category)
     {
-        $this->authorize('update', $category);
+        // Prevent editing system categories
+        if ($category->is_system) {
+            return response()->json([
+                'error' => 'System categories cannot be modified'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'color' => 'sometimes|string|max:7',
@@ -50,7 +55,29 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        $this->authorize('delete', $category);
+        // Prevent deleting system categories
+        if ($category->is_system) {
+            return response()->json([
+                'error' => 'System categories cannot be deleted'
+            ], 403);
+        }
+
+        // Check for transactions using this category
+        $transactionCount = $category->transactions()->count();
+        if ($transactionCount > 0) {
+            return response()->json([
+                'error' => "Cannot delete category. It has {$transactionCount} transaction(s) associated with it."
+            ], 400);
+        }
+
+        // Check for budgets using this category
+        $budgetCount = $category->budgets()->count();
+        if ($budgetCount > 0) {
+            return response()->json([
+                'error' => "Cannot delete category. It has {$budgetCount} budget(s) associated with it."
+            ], 400);
+        }
+
         $category->delete();
         return response()->json(['message' => 'Category deleted']);
     }

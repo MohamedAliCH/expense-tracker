@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { useApp } from "../../contexts/AppContext";
+import { useToast } from "../../contexts/ToastContext";
 import BudgetCard from "./BudgetCard";
+import ConfirmDialog from "../ConfirmDialog";
 
 const BudgetList = () => {
   const { budgetAnalysis, categories, addBudget, editBudget, removeBudget } =
     useApp();
+  const { showToast } = useToast();
 
   const [showModal, setShowModal] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null });
   const [formData, setFormData] = useState({
     category_id: "",
     amount: "",
@@ -22,8 +26,10 @@ const BudgetList = () => {
     try {
       if (editingBudget) {
         await editBudget(editingBudget.id, formData);
+        showToast("Budget updated successfully!", "success");
       } else {
         await addBudget(formData);
+        showToast("Budget created successfully!", "success");
       }
 
       setShowModal(false);
@@ -36,7 +42,7 @@ const BudgetList = () => {
       });
     } catch (error) {
       console.error("Error saving budget:", error);
-      alert("Failed to save budget");
+      showToast("Failed to save budget", "error");
     }
   };
 
@@ -52,15 +58,17 @@ const BudgetList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this budget?")) {
-      return;
-    }
+    setDeleteConfirm({ show: true, id });
+  };
 
+  const confirmDelete = async () => {
     try {
-      await removeBudget(id);
+      await removeBudget(deleteConfirm.id);
+      showToast("Budget deleted successfully!", "success");
+      setDeleteConfirm({ show: false, id: null });
     } catch (error) {
       console.error("Error deleting budget:", error);
-      alert("Failed to delete budget");
+      showToast("Failed to delete budget", "error");
     }
   };
 
@@ -324,6 +332,15 @@ const BudgetList = () => {
           </div>
         </div>
       )}
+
+      {/* CONFIRMATION DIALOG */}
+      <ConfirmDialog
+        show={deleteConfirm.show}
+        title="Delete Budget"
+        message="Are you sure you want to delete this budget? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm({ show: false, id: null })}
+      />
     </div>
   );
 };

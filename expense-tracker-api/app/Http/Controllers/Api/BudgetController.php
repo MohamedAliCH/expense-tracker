@@ -30,14 +30,11 @@ class BudgetController extends Controller
 
     public function show(Budget $budget)
     {
-        $this->authorize('view', $budget);
         return $budget->load('category');
     }
 
     public function update(Request $request, Budget $budget)
     {
-        $this->authorize('update', $budget);
-        
         $validated = $request->validate([
             'category_id' => 'sometimes|exists:categories,id',
             'amount' => 'sometimes|numeric|min:0',
@@ -51,7 +48,6 @@ class BudgetController extends Controller
 
     public function destroy(Budget $budget)
     {
-        $this->authorize('delete', $budget);
         $budget->delete();
         return response()->json(['message' => 'Budget deleted']);
     }

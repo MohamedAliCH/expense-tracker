@@ -18,8 +18,10 @@ import React, { useState } from "react";
 import { exportToCSV, exportToPDF } from "../../utils/Export";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
+import { useToast } from "../../contexts/ToastContext";
 import FilterBar from "./FilterBar";
 import TransactionRow from "./TransactionRow";
+import ConfirmDialog from "../ConfirmDialog";
 
 const TransactionTable = () => {
   const { user } = useAuth();
@@ -33,6 +35,7 @@ const TransactionTable = () => {
     filterMonth,
     setFilterMonth,
   } = useApp();
+  const { showToast } = useToast();
 
   // ==========================================
   // STATE FOR PAGINATION & EXPORT
@@ -44,6 +47,9 @@ const TransactionTable = () => {
   // Export date range
   const [exportStartDate, setExportStartDate] = useState("");
   const [exportEndDate, setExportEndDate] = useState("");
+
+  // Confirmation dialog state
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null });
 
   // ==========================================
   // PAGINATION
@@ -64,8 +70,16 @@ const TransactionTable = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this transaction?")) {
-      await deleteTransaction(id);
+    setDeleteConfirm({ show: true, id });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteTransaction(deleteConfirm.id);
+      showToast("Transaction deleted successfully!", "success");
+      setDeleteConfirm({ show: false, id: null });
+    } catch (error) {
+      showToast("Failed to delete transaction", "error");
     }
   };
 
@@ -312,6 +326,15 @@ const TransactionTable = () => {
           </div>
         </div>
       )}
+
+      {/* CONFIRMATION DIALOG */}
+      <ConfirmDialog
+        show={deleteConfirm.show}
+        title="Delete Transaction"
+        message="Are you sure you want to delete this transaction? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteConfirm({ show: false, id: null })}
+      />
     </div>
   );
 };

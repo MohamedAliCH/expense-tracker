@@ -168,8 +168,9 @@ export const AppProvider = ({ children }) => {
         ...budget,
         category: category?.name || "Unknown",
         color: category?.color || "#6b7280",
+        emoji: category?.emoji,
         spent,
-        percentage: Math.min((spent / budget.amount) * 100, 100),
+        percentage: (spent / budget.amount) * 100,
         remaining: Math.max(budget.amount - spent, 0),
       };
     });

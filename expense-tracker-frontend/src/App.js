@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./App.css";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { AppProvider } from "./contexts/AppContext";
+import { ToastProvider } from "./contexts/ToastContext";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Header from "./components/Header";
@@ -66,11 +67,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppProvider>
-        <AppContent />
-      </AppProvider>
-    </AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <AppProvider>
+          <AppContent />
+        </AppProvider>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
 

@@ -19,9 +19,11 @@
 
 import React, { useState } from "react";
 import { useApp } from "../../contexts/AppContext";
+import { useToast } from "../../contexts/ToastContext";
 
 const TransactionModal = ({ show, onClose }) => {
   const { categories, accounts, addTransaction } = useApp();
+  const { showToast } = useToast();
 
   // ==========================================
   // FORM STATE
@@ -50,7 +52,7 @@ const TransactionModal = ({ show, onClose }) => {
       !formData.account_id ||
       !formData.description
     ) {
-      alert("Please fill all fields");
+      showToast("Please fill all fields", "error");
       return;
     }
 
@@ -66,13 +68,14 @@ const TransactionModal = ({ show, onClose }) => {
           description: "",
           date: new Date().toISOString().split("T")[0],
         });
+        showToast("Transaction created successfully!", "success");
         onClose();
       } else {
-        alert("Failed to add transaction");
+        showToast("Failed to add transaction", "error");
       }
     } catch (error) {
       console.error("Error adding transaction:", error);
-      alert("Failed to add transaction");
+      showToast("Failed to add transaction", "error");
     }
   };
 
