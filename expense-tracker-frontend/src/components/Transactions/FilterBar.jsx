@@ -6,6 +6,12 @@ const FilterBar = ({
   setFilterType,
   filterMonth,
   setFilterMonth,
+  filterMinAmount,
+  setFilterMinAmount,
+  filterMaxAmount,
+  setFilterMaxAmount,
+  filterFavorites,
+  setFilterFavorites,
   exportStartDate,
   setExportStartDate,
   exportEndDate,
@@ -79,6 +85,81 @@ const FilterBar = ({
               </option>
             ))}
           </select>
+
+          {/* Amount Range Filters */}
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <input
+              type="number"
+              placeholder="Min Amount"
+              value={filterMinAmount}
+              onChange={(e) => setFilterMinAmount(e.target.value)}
+              style={{
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: "8px",
+                padding: "8px 12px",
+                color: "white",
+                width: "120px",
+              }}
+            />
+            <span style={{ color: "#9ca3af" }}>-</span>
+            <input
+              type="number"
+              placeholder="Max Amount"
+              value={filterMaxAmount}
+              onChange={(e) => setFilterMaxAmount(e.target.value)}
+              style={{
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: "8px",
+                padding: "8px 12px",
+                color: "white",
+                width: "120px",
+              }}
+            />
+          </div>
+
+          {/* Favorites Filter */}
+          <select
+            value={filterFavorites}
+            onChange={(e) => setFilterFavorites(e.target.value)}
+            style={{
+              background: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+              cursor: "pointer",
+            }}
+          >
+            <option value="all">All Transactions</option>
+            <option value="true">⭐ Favorites Only</option>
+            <option value="false">Non-Favorites</option>
+          </select>
+
+          {/* Clear Filters Button */}
+          {(filterMinAmount ||
+            filterMaxAmount ||
+            filterFavorites !== "all") && (
+            <button
+              onClick={() => {
+                setFilterMinAmount("");
+                setFilterMaxAmount("");
+                setFilterFavorites("all");
+              }}
+              style={{
+                background: "rgba(239,68,68,0.2)",
+                color: "#f87171",
+                padding: "8px 12px",
+                borderRadius: "8px",
+                border: "1px solid rgba(239,68,68,0.3)",
+                cursor: "pointer",
+                fontSize: "12px",
+              }}
+            >
+              Clear Filters
+            </button>
+          )}
         </div>
       </div>
 
@@ -92,30 +173,34 @@ const FilterBar = ({
           border: "1px solid rgba(255,255,255,0.2)",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {/* Export Header */}
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <Download size={20} color="#9ca3af" />
-            <span style={{ color: "#d1d5db", fontWeight: "500" }}>
-              Export Transactions
-            </span>
-          </div>
-
-          {/* Date Range Inputs */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "24px",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          {/* Left Side: Title & Date Inputs */}
           <div
             style={{
               display: "flex",
-              gap: "12px",
-              alignItems: "center",
               flexWrap: "wrap",
+              gap: "24px",
+              alignItems: "center",
             }}
           >
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
-            >
-              <label style={{ color: "#9ca3af", fontSize: "12px" }}>
-                From Date
-              </label>
+            {/* Export Header */}
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <Download size={20} color="#9ca3af" />
+              <span style={{ color: "#d1d5db", fontWeight: "500" }}>
+                Export:
+              </span>
+            </div>
+
+            {/* Date Range Inputs */}
+            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
               <input
                 type="date"
                 value={exportStartDate}
@@ -128,16 +213,10 @@ const FilterBar = ({
                   color: "white",
                   fontSize: "14px",
                   cursor: "pointer",
+                  colorScheme: "dark",
                 }}
               />
-            </div>
-
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
-            >
-              <label style={{ color: "#9ca3af", fontSize: "12px" }}>
-                To Date
-              </label>
+              <span style={{ color: "#9ca3af" }}>to</span>
               <input
                 type="date"
                 value={exportEndDate}
@@ -150,40 +229,51 @@ const FilterBar = ({
                   color: "white",
                   fontSize: "14px",
                   cursor: "pointer",
+                  colorScheme: "dark",
                 }}
               />
-            </div>
 
-            {(exportStartDate || exportEndDate) && (
-              <button
-                onClick={() => {
-                  setExportStartDate("");
-                  setExportEndDate("");
-                }}
-                style={{
-                  background: "rgba(239,68,68,0.2)",
-                  color: "#f87171",
-                  padding: "8px 12px",
-                  borderRadius: "8px",
-                  border: "1px solid rgba(239,68,68,0.3)",
-                  cursor: "pointer",
-                  fontSize: "12px",
-                  marginTop: "18px",
-                }}
-              >
-                Clear Dates
-              </button>
-            )}
+              {(exportStartDate || exportEndDate) && (
+                <button
+                  onClick={() => {
+                    setExportStartDate("");
+                    setExportEndDate("");
+                  }}
+                  style={{
+                    background: "rgba(239,68,68,0.2)",
+                    color: "#f87171",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(239,68,68,0.3)",
+                    cursor: "pointer",
+                    fontSize: "12px",
+                  }}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Export Buttons */}
+          {/* Right Side: Action Buttons */}
           <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <span
+              style={{
+                color: "#9ca3af",
+                fontSize: "13px",
+                fontStyle: "italic",
+                marginRight: "8px",
+              }}
+            >
+              ({filteredCount})
+            </span>
+
             <button
               onClick={onExportCSV}
               style={{
                 background: "rgba(34,197,94,0.2)",
                 color: "#4ade80",
-                padding: "10px 20px",
+                padding: "8px 16px",
                 borderRadius: "8px",
                 border: "1px solid rgba(34,197,94,0.3)",
                 cursor: "pointer",
@@ -191,7 +281,7 @@ const FilterBar = ({
                 fontSize: "14px",
               }}
             >
-              📄 Export CSV
+              CSV
             </button>
 
             <button
@@ -199,7 +289,7 @@ const FilterBar = ({
               style={{
                 background: "rgba(239,68,68,0.2)",
                 color: "#f87171",
-                padding: "10px 20px",
+                padding: "8px 16px",
                 borderRadius: "8px",
                 border: "1px solid rgba(239,68,68,0.3)",
                 cursor: "pointer",
@@ -207,19 +297,8 @@ const FilterBar = ({
                 fontSize: "14px",
               }}
             >
-              📑 Export PDF
+              PDF
             </button>
-
-            <span
-              style={{
-                color: "#9ca3af",
-                fontSize: "13px",
-                fontStyle: "italic",
-              }}
-            >
-              {filteredCount} transaction{filteredCount !== 1 ? "s" : ""} will
-              be exported
-            </span>
           </div>
         </div>
       </div>

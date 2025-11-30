@@ -38,6 +38,11 @@ export const AppProvider = ({ children }) => {
   // Filters
   const [filterType, setFilterType] = useState("all");
   const [filterMonth, setFilterMonth] = useState("all");
+  const [filterMinAmount, setFilterMinAmount] = useState("");
+  const [filterMaxAmount, setFilterMaxAmount] = useState("");
+  const [filterFavorites, setFilterFavorites] = useState("all"); // 'all', 'true', 'false'
+  const [sortBy, setSortBy] = useState("date"); // 'date', 'amount', 'description', 'type'
+  const [sortOrder, setSortOrder] = useState("desc"); // 'asc', 'desc'
 
   // Fetch Data
   const loadData = useCallback(async () => {
@@ -75,15 +80,80 @@ export const AppProvider = ({ children }) => {
 
   // Filtered transactions
   const filteredTransactions = useMemo(() => {
-    return transactions.filter((t) => {
+    // Safety check: ensure transactions is an array
+    if (!Array.isArray(transactions)) {
+      return [];
+    }
+
+    let filtered = transactions.filter((t) => {
       if (filterType !== "all" && t.type !== filterType) return false;
       if (filterMonth !== "all") {
         const tMonth = new Date(t.date).getMonth();
         if (tMonth !== parseInt(filterMonth)) return false;
       }
+      // Amount range filter
+      if (
+        filterMinAmount !== "" &&
+        parseFloat(t.amount) < parseFloat(filterMinAmount)
+      )
+        return false;
+      if (
+        filterMaxAmount !== "" &&
+        parseFloat(t.amount) > parseFloat(filterMaxAmount)
+      )
+        return false;
+      // Favorites filter
+      if (filterFavorites !== "all") {
+        const isFav =
+          t.is_favorite === true ||
+          t.is_favorite === 1 ||
+          t.is_favorite === "1";
+        if (filterFavorites === "true" && !isFav) return false;
+        if (filterFavorites === "false" && isFav) return false;
+      }
       return true;
     });
-  }, [transactions, filterType, filterMonth]);
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aVal, bVal;
+
+      switch (sortBy) {
+        case "amount":
+          aVal = parseFloat(a.amount);
+          bVal = parseFloat(b.amount);
+          break;
+        case "description":
+          aVal = a.description.toLowerCase();
+          bVal = b.description.toLowerCase();
+          break;
+        case "type":
+          aVal = a.type;
+          bVal = b.type;
+          break;
+        case "date":
+        default:
+          aVal = new Date(a.date);
+          bVal = new Date(b.date);
+          break;
+      }
+
+      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
+  }, [
+    transactions,
+    filterType,
+    filterMonth,
+    filterMinAmount,
+    filterMaxAmount,
+    filterFavorites,
+    sortBy,
+    sortOrder,
+  ]);
 
   // Financial Summary
   const financialSummary = useMemo(() => {
@@ -131,6 +201,11 @@ export const AppProvider = ({ children }) => {
       date.setMonth(date.getMonth() - (5 - i));
       const monthLabel = date.toLocaleString("default", { month: "short" });
 
+      // Safety check: ensure transactions is an array
+      if (!Array.isArray(transactions)) {
+        return { month: monthLabel, income: 0, expense: 0 };
+      }
+
       const monthTransactions = transactions.filter((t) => {
         const tDate = new Date(t.date);
         return (
@@ -156,13 +231,17 @@ export const AppProvider = ({ children }) => {
       const category = categories.find(
         (c) => c.id === parseInt(budget.category_id)
       );
-      const spent = transactions // Should be all transactions or filtered? Usually all for budget tracking
-        .filter(
-          (t) =>
-            t.type === "expense" &&
-            parseInt(t.category_id) === parseInt(budget.category_id)
-        )
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+      // Safety check: ensure transactions is an array
+      const spent = Array.isArray(transactions)
+        ? transactions
+            .filter(
+              (t) =>
+                t.type === "expense" &&
+                parseInt(t.category_id) === parseInt(budget.category_id)
+            )
+            .reduce((sum, t) => sum + parseFloat(t.amount), 0)
+        : 0;
 
       return {
         ...budget,
@@ -320,8 +399,18 @@ export const AppProvider = ({ children }) => {
     budgets,
     filterType,
     filterMonth,
+    filterMinAmount,
+    filterMaxAmount,
+    filterFavorites,
+    sortBy,
+    sortOrder,
     setFilterType,
     setFilterMonth,
+    setFilterMinAmount,
+    setFilterMaxAmount,
+    setFilterFavorites,
+    setSortBy,
+    setSortOrder,
     filteredTransactions,
     financialSummary,
     categoryBreakdown,

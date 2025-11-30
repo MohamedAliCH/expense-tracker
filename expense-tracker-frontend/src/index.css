@@ -46,3 +46,15 @@ select option {
   background-color: #1e293b;
   color: white;
 }
+
+/* Hide number input arrows - REVERTED */
+/* input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+} */
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Keep for Firefox if desired, or remove to show default */
+  color-scheme: dark; /* Forces browser to render native controls in dark mode */
+}

@@ -46,6 +46,7 @@ export const logoutUser = async () => {
 export const fetchCategories = async () => {
   const response = await fetch(`${API_URL}/categories`, {
     headers: getHeaders(),
+    cache: "no-store",
   });
   return response.json();
 };
@@ -53,6 +54,7 @@ export const fetchCategories = async () => {
 export const fetchAccounts = async () => {
   const response = await fetch(`${API_URL}/accounts`, {
     headers: getHeaders(),
+    cache: "no-store",
   });
   return response.json();
 };
@@ -60,6 +62,7 @@ export const fetchAccounts = async () => {
 export const fetchTransactions = async () => {
   const response = await fetch(`${API_URL}/transactions`, {
     headers: getHeaders(),
+    cache: "no-store",
   });
   return response.json();
 };
@@ -67,6 +70,7 @@ export const fetchTransactions = async () => {
 export const fetchBudgets = async () => {
   const response = await fetch(`${API_URL}/budgets`, {
     headers: getHeaders(),
+    cache: "no-store",
   });
   return response.json();
 };
@@ -80,6 +84,19 @@ export const createTransaction = async (data) => {
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.error || "Failed to create transaction");
+  }
+  return response.json();
+};
+
+export const updateTransaction = async (id, data) => {
+  const response = await fetch(`${API_URL}/transactions/${id}`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to update transaction");
   }
   return response.json();
 };

@@ -30,6 +30,8 @@ class TransactionController extends Controller
                     t.date,
                     t.category_id,
                     t.account_id,
+                    t.is_favorite,
+                    t.notes,
                     t.created_at,
                     t.updated_at,
                     c.name as category_name,
@@ -55,13 +57,47 @@ class TransactionController extends Controller
                 $params[] = $request->category_id;
             }
             
+            
             if ($request->has('start_date') && $request->has('end_date')) {
                 $sql .= " AND t.date BETWEEN ? AND ?";
                 $params[] = $request->start_date;
                 $params[] = $request->end_date;
             }
             
-            $sql .= " ORDER BY t.date DESC, t.created_at DESC";
+            // Amount range filter
+            if ($request->has('min_amount')) {
+                $sql .= " AND t.amount >= ?";
+                $params[] = $request->min_amount;
+            }
+            
+            if ($request->has('max_amount')) {
+                $sql .= " AND t.amount <= ?";
+                $params[] = $request->max_amount;
+            }
+            
+            // Favorites filter
+            if ($request->has('is_favorite') && $request->is_favorite !== 'all') {
+                $sql .= " AND t.is_favorite = ?";
+                $params[] = $request->is_favorite === 'true' || $request->is_favorite === '1' ? 1 : 0;
+            }
+            
+            // Dynamic sorting
+            $sortBy = $request->input('sort_by', 'date');
+            $sortOrder = $request->input('sort_order', 'desc');
+            
+            // Validate sort parameters to prevent SQL injection
+            $allowedSortFields = ['date', 'amount', 'description', 'type'];
+            $allowedSortOrders = ['asc', 'desc'];
+            
+            if (!in_array($sortBy, $allowedSortFields)) {
+                $sortBy = 'date';
+            }
+            
+            if (!in_array(strtolower($sortOrder), $allowedSortOrders)) {
+                $sortOrder = 'desc';
+            }
+            
+            $sql .= " ORDER BY t.{$sortBy} {$sortOrder}, t.created_at DESC";
 
             $transactions = DB::select($sql, $params);
 
@@ -111,7 +147,9 @@ class TransactionController extends Controller
                 'category_id' => 'required|exists:categories,id',
                 'account_id' => 'required|exists:accounts,id',
                 'description' => 'required|string|max:255',
-                'date' => 'required|date'
+                'date' => 'required|date',
+                'is_favorite' => 'sometimes|boolean',
+                'notes' => 'sometimes|nullable|string'
             ]);
 
             $userId = $request->user()->id;
@@ -121,8 +159,8 @@ class TransactionController extends Controller
             // Insert transaction
             DB::insert("
                 INSERT INTO transactions 
-                (user_id, type, amount, category_id, account_id, description, date, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                (user_id, type, amount, category_id, account_id, description, date, is_favorite, notes, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
             ", [
                 $userId,
                 $validated['type'],
@@ -130,7 +168,9 @@ class TransactionController extends Controller
                 $validated['category_id'],
                 $validated['account_id'],
                 $validated['description'],
-                $validated['date']
+                $validated['date'],
+                $validated['is_favorite'] ?? false,
+                $validated['notes'] ?? null
             ]);
 
             // Update account balance
@@ -216,7 +256,9 @@ class TransactionController extends Controller
                 'category_id' => 'sometimes|exists:categories,id',
                 'account_id' => 'sometimes|exists:accounts,id',
                 'description' => 'sometimes|string|max:255',
-                'date' => 'sometimes|date'
+                'date' => 'sometimes|date',
+                'is_favorite' => 'sometimes|boolean',
+                'notes' => 'sometimes|nullable|string'
             ]);
 
             $userId = $request->user()->id;

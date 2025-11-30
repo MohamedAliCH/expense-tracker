@@ -36,6 +36,8 @@ const TransactionModal = ({ show, onClose }) => {
     account_id: "",
     description: "",
     date: new Date().toISOString().split("T")[0], // Today's date
+    is_favorite: false,
+    notes: "",
   });
 
   // ==========================================
@@ -67,6 +69,8 @@ const TransactionModal = ({ show, onClose }) => {
           account_id: "",
           description: "",
           date: new Date().toISOString().split("T")[0],
+          is_favorite: false,
+          notes: "",
         });
         showToast("Transaction created successfully!", "success");
         onClose();
@@ -351,6 +355,64 @@ const TransactionModal = ({ show, onClose }) => {
                 fontSize: "16px",
               }}
             />
+          </div>
+
+          {/* NOTES TEXTAREA */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                color: "#d1d5db",
+                marginBottom: "8px",
+              }}
+            >
+              Notes (Optional)
+            </label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
+              rows={3}
+              style={{
+                width: "100%",
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+                fontSize: "16px",
+                resize: "vertical",
+              }}
+              placeholder="Add any additional notes..."
+            />
+          </div>
+
+          {/* FAVORITE CHECKBOX */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <input
+              type="checkbox"
+              id="is_favorite"
+              checked={formData.is_favorite}
+              onChange={(e) =>
+                setFormData({ ...formData, is_favorite: e.target.checked })
+              }
+              style={{
+                width: "18px",
+                height: "18px",
+                cursor: "pointer",
+              }}
+            />
+            <label
+              htmlFor="is_favorite"
+              style={{
+                color: "#d1d5db",
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+            >
+              ⭐ Mark as Favorite
+            </label>
           </div>
 
           {/* ACTION BUTTONS */}

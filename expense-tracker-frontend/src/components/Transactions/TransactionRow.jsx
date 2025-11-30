@@ -1,7 +1,25 @@
-import React from "react";
-import { Trash2 } from "lucide-react";
+import React, { useState } from "react";
+import { Trash2, Star, FileText } from "lucide-react";
+import { updateTransaction } from "../../utils/api";
 
 const TransactionRow = ({ transaction, categories, accounts, onDelete }) => {
+  const [isFavorite, setIsFavorite] = useState(
+    transaction.is_favorite === 1 || transaction.is_favorite === true
+  );
+  const [showNotesTooltip, setShowNotesTooltip] = useState(false);
+
+  const toggleFavorite = async () => {
+    try {
+      const newFavoriteStatus = !isFavorite;
+      await updateTransaction(transaction.id, {
+        is_favorite: newFavoriteStatus,
+      });
+      setIsFavorite(newFavoriteStatus);
+    } catch (error) {
+      console.error("Failed to toggle favorite", error);
+    }
+  };
+
   // Helper functions
   const getCategoryName = (catId) => {
     const cat = categories.find((c) => c.id === parseInt(catId));
@@ -88,22 +106,86 @@ const TransactionRow = ({ transaction, categories, accounts, onDelete }) => {
         {parseFloat(transaction.amount).toFixed(2)}
       </td>
 
-      {/* Delete Button */}
+      {/* Actions */}
       <td style={{ padding: "16px 24px", textAlign: "right" }}>
-        <button
-          onClick={() => onDelete(transaction.id)}
+        <div
           style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            color: "#f87171",
-            transition: "color 0.2s",
+            display: "flex",
+            gap: "8px",
+            justifyContent: "flex-end",
+            alignItems: "center",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#f87171")}
         >
-          <Trash2 size={20} />
-        </button>
+          {/* Favorite Star */}
+          <button
+            onClick={toggleFavorite}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: isFavorite ? "#fbbf24" : "#6b7280",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.color = isFavorite ? "#f59e0b" : "#9ca3af")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.color = isFavorite ? "#fbbf24" : "#6b7280")
+            }
+            title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          >
+            <Star size={18} fill={isFavorite ? "currentColor" : "none"} />
+          </button>
+
+          {/* Notes Indicator */}
+          {transaction.notes && (
+            <div
+              style={{ position: "relative" }}
+              onMouseEnter={() => setShowNotesTooltip(true)}
+              onMouseLeave={() => setShowNotesTooltip(false)}
+            >
+              <FileText size={18} color="#60a5fa" />
+              {showNotesTooltip && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "100%",
+                    right: "0",
+                    marginBottom: "8px",
+                    background: "rgba(0,0,0,0.9)",
+                    color: "white",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                    whiteSpace: "nowrap",
+                    maxWidth: "200px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    zIndex: 1000,
+                  }}
+                >
+                  {transaction.notes}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Delete Button */}
+          <button
+            onClick={() => onDelete(transaction.id)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#f87171",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#f87171")}
+          >
+            <Trash2 size={20} />
+          </button>
+        </div>
       </td>
     </tr>
   );

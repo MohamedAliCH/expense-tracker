@@ -34,6 +34,16 @@ const TransactionTable = () => {
     setFilterType,
     filterMonth,
     setFilterMonth,
+    filterMinAmount,
+    setFilterMinAmount,
+    filterMaxAmount,
+    setFilterMaxAmount,
+    filterFavorites,
+    setFilterFavorites,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
   } = useApp();
   const { showToast } = useToast();
 
@@ -94,6 +104,18 @@ const TransactionTable = () => {
         setFilterType={(val) => handleFilterChange(setFilterType)(val)}
         filterMonth={filterMonth}
         setFilterMonth={(val) => handleFilterChange(setFilterMonth)(val)}
+        filterMinAmount={filterMinAmount}
+        setFilterMinAmount={(val) =>
+          handleFilterChange(setFilterMinAmount)(val)
+        }
+        filterMaxAmount={filterMaxAmount}
+        setFilterMaxAmount={(val) =>
+          handleFilterChange(setFilterMaxAmount)(val)
+        }
+        filterFavorites={filterFavorites}
+        setFilterFavorites={(val) =>
+          handleFilterChange(setFilterFavorites)(val)
+        }
         exportStartDate={exportStartDate}
         setExportStartDate={setExportStartDate}
         exportEndDate={exportEndDate}
