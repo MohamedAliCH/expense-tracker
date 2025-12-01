@@ -40,7 +40,8 @@ RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framewor
 EXPOSE 8080
 
 # Run migrations and start server
-CMD php artisan migrate --force && \
+CMD touch database/database.sqlite && \
+    php artisan migrate --force && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
