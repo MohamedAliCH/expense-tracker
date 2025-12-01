@@ -227,6 +227,7 @@ export const AppProvider = ({ children }) => {
 
   // Budget Analysis
   const budgetAnalysis = useMemo(() => {
+    if (!Array.isArray(budgets)) return [];
     return budgets.map((budget) => {
       const category = categories.find(
         (c) => c.id === parseInt(budget.category_id)

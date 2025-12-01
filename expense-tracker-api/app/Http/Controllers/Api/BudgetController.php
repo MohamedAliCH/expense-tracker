@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-// OLD ELOQUENT APPROACH - Commented Out
-// use App\Models\Budget;
+use App\Models\Budget;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,8 +12,43 @@ class BudgetController extends Controller
 {
     /**
      * Get all budgets with spending data
-     * NEW: Raw SQL with aggregated spending
+     * ELOQUENT VERSION (Active for SQLite compatibility)
      */
+    public function index(Request $request)
+    {
+        try {
+            // Use Eloquent for cross-database compatibility (SQLite/MySQL)
+            $budgets = Budget::where('user_id', $request->user()->id)
+                ->with('category')
+                ->get();
+
+            // Calculate spent amount manually
+            $budgets->transform(function ($budget) {
+                $spent = \App\Models\Transaction::where('user_id', $budget->user_id)
+                    ->where('category_id', $budget->category_id)
+                    ->where('type', 'expense')
+                    ->whereYear('date', now()->year)
+                    ->whereMonth('date', now()->month)
+                    ->sum('amount');
+                
+                $budget->spent = $spent;
+                // Add flattened category fields for frontend compatibility
+                if ($budget->category) {
+                    $budget->category_name = $budget->category->name;
+                    $budget->category_color = $budget->category->color;
+                    $budget->category_emoji = $budget->category->emoji;
+                }
+                return $budget;
+            });
+
+            return response()->json($budgets);
+        } catch (\Exception $e) {
+            Log::error('Budget index error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch budgets'], 500);
+        }
+    }
+
+    /* RAW SQL VERSION (Commented out)
     public function index(Request $request)
     {
         try {
@@ -50,18 +84,54 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to fetch budgets'], 500);
         }
     }
-
-    /* OLD ELOQUENT VERSION:
-    public function index()
-    {
-        return Budget::where('user_id', auth()->id())->with('category')->get();
-    }
     */
 
     /**
      * Store a new budget
-     * NEW: Raw SQL with duplicate check
+     * ELOQUENT VERSION (Active)
      */
+    public function store(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'category_id' => 'required|exists:categories,id',
+                'amount' => 'required|numeric|min:0.01',
+                'period' => 'required|in:weekly,monthly,yearly',
+                'start_date' => 'required|date'
+            ]);
+
+            $validated['user_id'] = $request->user()->id;
+            
+            // Check for existing budget
+            $exists = Budget::where('user_id', $validated['user_id'])
+                ->where('category_id', $validated['category_id'])
+                ->exists();
+                
+            if ($exists) {
+                return response()->json(['error' => 'Budget already exists for this category'], 400);
+            }
+
+            $budget = Budget::create($validated);
+            
+            // Load category for response
+            $budget->load('category');
+            
+            // Add flattened fields for frontend
+            if ($budget->category) {
+                $budget->category_name = $budget->category->name;
+                $budget->category_color = $budget->category->color;
+                $budget->category_emoji = $budget->category->emoji;
+            }
+            $budget->spent = 0;
+
+            return response()->json($budget, 201);
+        } catch (\Exception $e) {
+            Log::error('Budget store error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to create budget'], 500);
+        }
+    }
+
+    /* RAW SQL VERSION (Commented out)
     public function store(Request $request)
     {
         try {
@@ -117,28 +187,38 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to create budget'], 500);
         }
     }
-
-    /* OLD ELOQUENT VERSION:
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'amount' => 'required|numeric|min:0',
-            'period' => 'required|in:weekly,monthly,yearly',
-            'start_date' => 'required|date',
-        ]);
-
-        $validated['user_id'] = auth()->id();
-        $budget = Budget::create($validated);
-
-        return response()->json($budget->load('category'), 201);
-    }
     */
 
     /**
      * Show a single budget
-     * NEW: Raw SQL SELECT
+     * ELOQUENT VERSION (Active)
      */
+    public function show(Request $request, $id)
+    {
+        try {
+            $budget = Budget::where('user_id', $request->user()->id)
+                ->where('id', $id)
+                ->with('category')
+                ->first();
+
+            if (!$budget) {
+                return response()->json(['error' => 'Budget not found'], 404);
+            }
+
+            if ($budget->category) {
+                $budget->category_name = $budget->category->name;
+                $budget->category_color = $budget->category->color;
+                $budget->category_emoji = $budget->category->emoji;
+            }
+
+            return response()->json($budget);
+        } catch (\Exception $e) {
+            Log::error('Budget show error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch budget'], 500);
+        }
+    }
+
+    /* RAW SQL VERSION (Commented out)
     public function show(Request $request, $id)
     {
         try {
@@ -165,18 +245,48 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to fetch budget'], 500);
         }
     }
-
-    /* OLD ELOQUENT VERSION:
-    public function show(Budget $budget)
-    {
-        return $budget->load('category');
-    }
     */
 
     /**
      * Update a budget
-     * NEW: Raw SQL UPDATE
+     * ELOQUENT VERSION (Active)
      */
+    public function update(Request $request, $id)
+    {
+        try {
+            $budget = Budget::where('user_id', $request->user()->id)
+                ->where('id', $id)
+                ->first();
+
+            if (!$budget) {
+                return response()->json(['error' => 'Budget not found'], 404);
+            }
+
+            $validated = $request->validate([
+                'amount' => 'sometimes|numeric|min:0.01',
+                'period' => 'sometimes|in:weekly,monthly,yearly',
+                'start_date' => 'sometimes|date'
+            ]);
+
+            $budget->update($validated);
+            
+            // Load category for response
+            $budget->load('category');
+            
+            if ($budget->category) {
+                $budget->category_name = $budget->category->name;
+                $budget->category_color = $budget->category->color;
+                $budget->category_emoji = $budget->category->emoji;
+            }
+
+            return response()->json($budget);
+        } catch (\Exception $e) {
+            Log::error('Budget update error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to update budget'], 500);
+        }
+    }
+
+    /* RAW SQL VERSION (Commented out)
     public function update(Request $request, $id)
     {
         try {
@@ -235,26 +345,31 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to update budget'], 500);
         }
     }
-
-    /* OLD ELOQUENT VERSION:
-    public function update(Request $request, Budget $budget)
-    {
-        $validated = $request->validate([
-            'category_id' => 'sometimes|exists:categories,id',
-            'amount' => 'sometimes|numeric|min:0',
-            'period' => 'sometimes|in:weekly,monthly,yearly',
-            'start_date' => 'sometimes|date',
-        ]);
-
-        $budget->update($validated);
-        return $budget->load('category');
-    }
     */
 
     /**
      * Delete a budget
-     * NEW: Raw SQL DELETE
+     * ELOQUENT VERSION (Active)
      */
+    public function destroy(Request $request, $id)
+    {
+        try {
+            $deleted = Budget::where('user_id', $request->user()->id)
+                ->where('id', $id)
+                ->delete();
+
+            if ($deleted === 0) {
+                return response()->json(['error' => 'Budget not found'], 404);
+            }
+
+            return response()->json(['message' => 'Budget deleted successfully']);
+        } catch (\Exception $e) {
+            Log::error('Budget delete error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to delete budget'], 500);
+        }
+    }
+
+    /* RAW SQL VERSION (Commented out)
     public function destroy(Request $request, $id)
     {
         try {
@@ -274,13 +389,6 @@ class BudgetController extends Controller
             Log::error('Budget delete error: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to delete budget'], 500);
         }
-    }
-
-    /* OLD ELOQUENT VERSION:
-    public function destroy(Budget $budget)
-    {
-        $budget->delete();
-        return response()->json(['message' => 'Budget deleted']);
     }
     */
 }
