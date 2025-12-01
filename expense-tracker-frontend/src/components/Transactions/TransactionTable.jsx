@@ -40,10 +40,6 @@ const TransactionTable = () => {
     setFilterMaxAmount,
     filterFavorites,
     setFilterFavorites,
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
   } = useApp();
   const { showToast } = useToast();
 
