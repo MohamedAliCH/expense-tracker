@@ -10,10 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class BudgetController extends Controller
 {
-    /**
-     * Get all budgets with spending data
-     * ELOQUENT VERSION (Active for SQLite compatibility)
-     */
+    /* ELOQUENT VERSION (Commented out)
     public function index(Request $request)
     {
         try {
@@ -47,8 +44,12 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to fetch budgets'], 500);
         }
     }
+    */
 
-    /* RAW SQL VERSION (Commented out)
+    /**
+     * Get all budgets with spending data
+     * RAW SQL VERSION (Active)
+     */
     public function index(Request $request)
     {
         try {
@@ -84,12 +85,8 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to fetch budgets'], 500);
         }
     }
-    */
 
-    /**
-     * Store a new budget
-     * ELOQUENT VERSION (Active)
-     */
+    /* ELOQUENT VERSION (Commented out)
     public function store(Request $request)
     {
         try {
@@ -130,8 +127,12 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to create budget'], 500);
         }
     }
+    */
 
-    /* RAW SQL VERSION (Commented out)
+    /**
+     * Store a new budget
+     * RAW SQL VERSION (Active)
+     */
     public function store(Request $request)
     {
         try {
@@ -187,12 +188,8 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to create budget'], 500);
         }
     }
-    */
 
-    /**
-     * Show a single budget
-     * ELOQUENT VERSION (Active)
-     */
+    /* ELOQUENT VERSION (Commented out)
     public function show(Request $request, $id)
     {
         try {
@@ -217,8 +214,12 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to fetch budget'], 500);
         }
     }
+    */
 
-    /* RAW SQL VERSION (Commented out)
+    /**
+     * Show a single budget
+     * RAW SQL VERSION (Active)
+     */
     public function show(Request $request, $id)
     {
         try {
@@ -245,12 +246,8 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to fetch budget'], 500);
         }
     }
-    */
 
-    /**
-     * Update a budget
-     * ELOQUENT VERSION (Active)
-     */
+    /* ELOQUENT VERSION (Commented out)
     public function update(Request $request, $id)
     {
         try {
@@ -285,8 +282,12 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to update budget'], 500);
         }
     }
+    */
 
-    /* RAW SQL VERSION (Commented out)
+    /**
+     * Update a budget
+     * RAW SQL VERSION (Active)
+     */
     public function update(Request $request, $id)
     {
         try {
@@ -345,12 +346,8 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to update budget'], 500);
         }
     }
-    */
 
-    /**
-     * Delete a budget
-     * ELOQUENT VERSION (Active)
-     */
+    /* ELOQUENT VERSION (Commented out)
     public function destroy(Request $request, $id)
     {
         try {
@@ -368,8 +365,12 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to delete budget'], 500);
         }
     }
+    */
 
-    /* RAW SQL VERSION (Commented out)
+    /**
+     * Delete a budget
+     * RAW SQL VERSION (Active)
+     */
     public function destroy(Request $request, $id)
     {
         try {
@@ -390,5 +391,4 @@ class BudgetController extends Controller
             return response()->json(['error' => 'Failed to delete budget'], 500);
         }
     }
-    */
 }
