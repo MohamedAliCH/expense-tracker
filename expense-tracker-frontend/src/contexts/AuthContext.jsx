@@ -26,12 +26,15 @@ export const AuthProvider = ({ children }) => {
   // Fetch current user from API
   const fetchUser = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/user", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:8000/api"}/user`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -64,14 +67,17 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     try {
-      const response = await fetch("http://localhost:8000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || "http://localhost:8000/api"}/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       const data = await response.json();
 
@@ -92,14 +98,24 @@ export const AuthProvider = ({ children }) => {
   // Register function
   const register = async (name, email, password, password_confirmation) => {
     try {
-      const response = await fetch("http://localhost:8000/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ name, email, password, password_confirmation }),
-      });
+      const response = await fetch(
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:8000/api"
+        }/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            password_confirmation,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -124,13 +140,18 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       if (token) {
-        await fetch("http://localhost:8000/api/logout", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        });
+        await fetch(
+          `${
+            process.env.REACT_APP_API_URL || "http://localhost:8000/api"
+          }/logout`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          }
+        );
       }
     } catch (error) {
       console.error("Logout error:", error);
