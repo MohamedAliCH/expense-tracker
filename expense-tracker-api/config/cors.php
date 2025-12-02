@@ -6,6 +6,8 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
+        'https://daliii.me',
+        'https://www.daliii.me',
         'https://expense-tracker-frontend-iyhk.onrender.com',
         'http://localhost:5173',
         'http://localhost:3000',
