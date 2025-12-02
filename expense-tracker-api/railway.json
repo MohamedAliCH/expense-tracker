@@ -1,0 +1,28 @@
+{
+    "$schema": "https://railway.app/railway.schema.json",
+    "build": {
+        "builder": "NIXPACKS",
+        "nixpacksPlan": {
+            "providers": ["php", "node"],
+            "phases": {
+                "setup": {
+                    "nixPkgs": [
+                        "php83",
+                        "php83Extensions.pdo_mysql",
+                        "php83Extensions.mbstring",
+                        "php83Extensions.exif",
+                        "php83Extensions.pcntl",
+                        "php83Extensions.bcmath",
+                        "php83Extensions.gd",
+                        "php83Extensions.zip",
+                        "php83Extensions.xml",
+                        "php83Extensions.curl",
+                        "nodejs_20",
+                        "git",
+                        "unzip"
+                    ]
+                }
+            }
+        }
+    }
+}
