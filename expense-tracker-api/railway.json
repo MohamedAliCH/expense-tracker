@@ -17,6 +17,7 @@
                         "php83Extensions.zip",
                         "php83Extensions.xml",
                         "php83Extensions.curl",
+                        "composer",
                         "git",
                         "unzip"
                     ]
