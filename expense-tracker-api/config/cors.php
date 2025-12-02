@@ -2,11 +2,22 @@
 
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['*'], // In production, you can replace '*' with your Netlify URL
+
+    'allowed_origins' => [
+        'https://expense-tracker-dali.netlify.app',
+        'http://localhost:5173',
+        'http://localhost:3000',
+    ],
+
     'allowed_origins_patterns' => [],
+
     'allowed_headers' => ['*'],
+
     'exposed_headers' => [],
+
     'max_age' => 0,
-    'supports_credentials' => false,
+
+    'supports_credentials' => true, // Changed to true for authentication
 ];
