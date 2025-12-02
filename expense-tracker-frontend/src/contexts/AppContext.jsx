@@ -44,28 +44,33 @@ export const AppProvider = ({ children }) => {
   const [sortBy, setSortBy] = useState("date"); // 'date', 'amount', 'description', 'type'
   const [sortOrder, setSortOrder] = useState("desc"); // 'asc', 'desc'
 
-  // Fetch Data
+  // Fetch Data - Load only essential data first
   const loadData = useCallback(async () => {
     if (!isAuthenticated) return;
 
     setLoading(true);
     try {
-      const [categoriesData, accountsData, transactionsData, budgetsData] =
-        await Promise.all([
-          fetchCategories(),
-          fetchAccounts(),
-          fetchTransactions(),
-          fetchBudgets(),
-        ]);
+      // Load only categories and accounts first (needed for forms)
+      const [categoriesData, accountsData] = await Promise.all([
+        fetchCategories(),
+        fetchAccounts(),
+      ]);
 
       setCategories(categoriesData || []);
       setAccounts(accountsData || []);
-      setTransactions(transactionsData || []);
-      setBudgets(budgetsData || []);
+      setLoading(false);
+
+      // Load transactions and budgets in background (not blocking)
+      Promise.all([fetchTransactions(), fetchBudgets()])
+        .then(([transactionsData, budgetsData]) => {
+          setTransactions(transactionsData || []);
+          setBudgets(budgetsData || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching secondary data:", error);
+        });
     } catch (error) {
       console.error("Error fetching data:", error);
-      // Optional: Add toast notification here
-    } finally {
       setLoading(false);
     }
   }, [isAuthenticated]);
