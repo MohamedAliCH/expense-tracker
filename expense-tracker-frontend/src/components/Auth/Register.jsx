@@ -11,10 +11,11 @@
 
 import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
 import { UserPlus } from "lucide-react";
 import "./Auth.css";
 
-const Register = ({ onSwitchToLogin }) => {
+const Register = () => {
   const { register } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
@@ -125,9 +126,9 @@ const Register = ({ onSwitchToLogin }) => {
 
           <p className="auth-footer">
             Already have an account?{" "}
-            <button onClick={onSwitchToLogin} className="auth-link">
+            <Link to="/login" className="auth-link">
               Login
-            </button>
+            </Link>
           </p>
         </div>
       </div>

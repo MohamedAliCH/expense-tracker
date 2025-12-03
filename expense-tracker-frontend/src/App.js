@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Routes, Route, Navigate, useLocation, Outlet } from "react-router-dom";
 import "./App.css";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { AppProvider } from "./contexts/AppContext";
@@ -14,13 +15,13 @@ import AccountList from "./components/Accounts/AccountList";
 import TransactionModal from "./components/Transactions/TransactionModal";
 import CategoryManager from "./components/Categories/CategoryManager";
 
-function AppContent() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState("login");
-  const [activeTab, setActiveTab] = useState("dashboard");
+// Layout for authenticated routes
+const PrivateLayout = () => {
+  const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
   const [showModal, setShowModal] = useState(false);
 
-  if (authLoading) {
+  if (loading) {
     return (
       <div className="loading-container">
         <div className="loading-text">Loading...</div>
@@ -29,32 +30,16 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
-    return showAuthModal === "login" ? (
-      <Login onSwitchToRegister={() => setShowAuthModal("register")} />
-    ) : (
-      <Register onSwitchToLogin={() => setShowAuthModal("login")} />
-    );
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return (
     <div className="app-container">
       <div className="content-wrapper">
-        <Header
-          onAddTransaction={() => setShowModal(true)}
-          // onRefresh is now handled within components via context if needed,
-          // or we can expose refreshData from context and pass it here if Header needs it.
-          // For now, let's assume Header might need a refresh prop or we update Header to use context too.
-          // Let's pass a dummy function or update Header later.
-          // Actually, Header usually has a refresh button. Let's leave it for now and update Header to use context if needed.
-        />
+        <Header onAddTransaction={() => setShowModal(true)} />
+        <TabNavigation />
 
-        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-
-        {activeTab === "dashboard" && <Dashboard />}
-        {activeTab === "transactions" && <TransactionTable />}
-        {activeTab === "budgets" && <BudgetList />}
-        {activeTab === "accounts" && <AccountList />}
-        {activeTab === "categories" && <CategoryManager />}
+        <Outlet />
 
         <TransactionModal
           show={showModal}
@@ -63,14 +48,64 @@ function AppContent() {
       </div>
     </div>
   );
-}
+};
+
+// Public route wrapper (redirects to dashboard if already logged in)
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-text">Loading...</div>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
 
 function App() {
   return (
     <ToastProvider>
       <AuthProvider>
         <AppProvider>
-          <AppContent />
+          <Routes>
+            {/* Public Routes */}
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              }
+            />
+
+            {/* Private Routes */}
+            <Route element={<PrivateLayout />}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/transactions" element={<TransactionTable />} />
+              <Route path="/budgets" element={<BudgetList />} />
+              <Route path="/accounts" element={<AccountList />} />
+              <Route path="/categories" element={<CategoryManager />} />
+            </Route>
+
+            {/* Catch all - redirect to dashboard */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
         </AppProvider>
       </AuthProvider>
     </ToastProvider>

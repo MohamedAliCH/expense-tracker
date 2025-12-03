@@ -4,16 +4,16 @@
  * Login form with:
  * - Email input
  * - Password input
- * - Remember me checkbox
  * - Link to register
  */
 
 import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
 import { LogIn } from "lucide-react";
 import "./Auth.css";
 
-const Login = ({ onSwitchToRegister }) => {
+const Login = () => {
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
@@ -83,9 +83,9 @@ const Login = ({ onSwitchToRegister }) => {
 
           <p className="auth-footer">
             Don't have an account?{" "}
-            <button onClick={onSwitchToRegister} className="auth-link">
+            <Link to="/register" className="auth-link">
               Register
-            </button>
+            </Link>
           </p>
 
           <div className="auth-demo-info">
