@@ -1,18 +1,13 @@
 import React from "react";
 import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import StatCard from "../Common/StatCard";
+import "./Dashboard.css";
 
 const SummaryCards = ({ totalIncome, totalExpense, transactionCounts }) => {
   const balance = totalIncome - totalExpense;
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-        gap: "24px",
-      }}
-    >
+    <div className="summary-cards-grid">
       <StatCard
         type="income"
         icon={TrendingUp}
@@ -34,7 +29,7 @@ const SummaryCards = ({ totalIncome, totalExpense, transactionCounts }) => {
         icon={Wallet}
         label="Net Balance"
         amount={balance}
-        count={0} // Balance doesn't really have a count, or you could pass total transactions
+        count={0}
       />
     </div>
   );

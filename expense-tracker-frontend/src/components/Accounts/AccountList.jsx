@@ -15,6 +15,7 @@ import React, { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { useApp } from "../../contexts/AppContext";
 import AccountCard from "./AccountCard";
+import "./Accounts.css";
 
 const AccountList = () => {
   const { accounts, addAccount, editAccount, removeAccount } = useApp();
@@ -76,48 +77,23 @@ const AccountList = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "white" }}>
-          Manage Accounts
-        </h2>
+    <div className="accounts-container">
+      <div className="accounts-header">
+        <h2 className="accounts-title">Manage Accounts</h2>
         <button
           onClick={() => {
             setEditingAccount(null);
             setFormData({ name: "", balance: "", type: "wallet" });
             setShowModal(true);
           }}
-          style={{
-            background: "linear-gradient(to right, #a855f7, #ec4899)",
-            color: "white",
-            padding: "12px 24px",
-            borderRadius: "8px",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontWeight: "500",
-          }}
+          className="add-account-btn"
         >
           <Plus size={20} />
           Add Account
         </button>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "24px",
-        }}
-      >
+      <div className="accounts-grid">
         {accounts.map((account) => (
           <AccountCard
             key={account.id}
@@ -130,99 +106,38 @@ const AccountList = () => {
 
       {/* Modal */}
       {showModal && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "16px",
-            zIndex: 50,
-          }}
-        >
-          <div
-            style={{
-              background: "#1e293b",
-              borderRadius: "16px",
-              padding: "32px",
-              maxWidth: "400px",
-              width: "100%",
-              border: "1px solid rgba(255,255,255,0.2)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "24px",
-              }}
-            >
-              <h3
-                style={{ fontSize: "24px", fontWeight: "bold", color: "white" }}
-              >
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">
                 {editingAccount ? "Edit Account" : "Add Account"}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "white",
-                }}
+                className="close-modal-btn"
               >
                 <X size={24} />
               </button>
             </div>
 
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-            >
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    color: "#d1d5db",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Account Name
-                </label>
+            <div className="modal-form">
+              <div className="form-group">
+                <label className="form-label">Account Name</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  style={{
-                    width: "100%",
-                    background: "rgba(255,255,255,0.1)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    borderRadius: "8px",
-                    padding: "12px 16px",
-                    color: "white",
-                    fontSize: "16px",
-                  }}
+                  className="form-input"
                   placeholder="e.g., Main Wallet"
                 />
               </div>
 
               {/* Show balance input only when creating new account */}
               {!editingAccount && (
-                <div>
-                  <label
-                    style={{
-                      display: "block",
-                      color: "#d1d5db",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    Initial Balance
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Initial Balance</label>
                   <input
                     type="number"
                     step="0.01"
@@ -230,25 +145,10 @@ const AccountList = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, balance: e.target.value })
                     }
-                    style={{
-                      width: "100%",
-                      background: "rgba(255,255,255,0.1)",
-                      border: "1px solid rgba(255,255,255,0.2)",
-                      borderRadius: "8px",
-                      padding: "12px 16px",
-                      color: "white",
-                      fontSize: "16px",
-                    }}
+                    className="form-input"
                     placeholder="0.00"
                   />
-                  <p
-                    style={{
-                      color: "#9ca3af",
-                      fontSize: "12px",
-                      marginTop: "4px",
-                      fontStyle: "italic",
-                    }}
-                  >
+                  <p className="form-hint">
                     Set the starting balance for this account
                   </p>
                 </div>
@@ -256,68 +156,25 @@ const AccountList = () => {
 
               {/* Show current balance as read-only when editing */}
               {editingAccount && (
-                <div>
-                  <label
-                    style={{
-                      display: "block",
-                      color: "#d1d5db",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    Current Balance
-                  </label>
-                  <div
-                    style={{
-                      width: "100%",
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: "8px",
-                      padding: "12px 16px",
-                      color: "#9ca3af",
-                      fontSize: "16px",
-                      fontWeight: "bold",
-                    }}
-                  >
+                <div className="form-group">
+                  <label className="form-label">Current Balance</label>
+                  <div className="balance-display">
                     ${parseFloat(editingAccount.balance).toFixed(2)}
                   </div>
-                  <p
-                    style={{
-                      color: "#9ca3af",
-                      fontSize: "12px",
-                      marginTop: "4px",
-                      fontStyle: "italic",
-                    }}
-                  >
+                  <p className="form-hint">
                     ⓘ Balance is automatically updated from transactions
                   </p>
                 </div>
               )}
 
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    color: "#d1d5db",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Account Type
-                </label>
+              <div className="form-group">
+                <label className="form-label">Account Type</label>
                 <select
                   value={formData.type}
                   onChange={(e) =>
                     setFormData({ ...formData, type: e.target.value })
                   }
-                  style={{
-                    width: "100%",
-                    background: "rgba(255,255,255,0.1)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    borderRadius: "8px",
-                    padding: "12px 16px",
-                    color: "white",
-                    fontSize: "16px",
-                    cursor: "pointer",
-                  }}
+                  className="form-select"
                 >
                   <option value="wallet">Wallet</option>
                   <option value="bank">Bank Account</option>
@@ -325,21 +182,7 @@ const AccountList = () => {
                 </select>
               </div>
 
-              <button
-                onClick={handleSubmit}
-                style={{
-                  width: "100%",
-                  background: "linear-gradient(to right, #a855f7, #ec4899)",
-                  color: "white",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "none",
-                  cursor: "pointer",
-                  fontWeight: "500",
-                  fontSize: "16px",
-                  marginTop: "8px",
-                }}
-              >
+              <button onClick={handleSubmit} className="submit-btn">
                 {editingAccount ? "Update Account" : "Create Account"}
               </button>
             </div>

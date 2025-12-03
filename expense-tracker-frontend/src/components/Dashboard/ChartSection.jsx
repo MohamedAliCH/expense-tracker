@@ -12,29 +12,12 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import "./Dashboard.css";
 
 const ChartSection = ({ title, type, data, dataKeys = [], colors = [] }) => {
   return (
-    <div
-      style={{
-        background: "rgba(255,255,255,0.1)",
-        backdropFilter: "blur(10px)",
-        borderRadius: "16px",
-        padding: "24px",
-        border: "1px solid rgba(255,255,255,0.2)",
-        height: "100%",
-      }}
-    >
-      <h3
-        style={{
-          color: "white",
-          fontSize: "20px",
-          fontWeight: "bold",
-          marginBottom: "20px",
-        }}
-      >
-        {title}
-      </h3>
+    <div className="chart-section">
+      <h3 className="chart-title">{title}</h3>
 
       <ResponsiveContainer width="100%" height={300}>
         {type === "bar" ? (

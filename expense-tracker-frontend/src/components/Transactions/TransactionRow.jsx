@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Trash2, Star, FileText } from "lucide-react";
 import { updateTransaction } from "../../utils/api";
+import "./Transactions.css";
 
 const TransactionRow = ({ transaction, categories, accounts, onDelete }) => {
   const [isFavorite, setIsFavorite] = useState(
@@ -46,40 +47,18 @@ const TransactionRow = ({ transaction, categories, accounts, onDelete }) => {
   };
 
   return (
-    <tr
-      style={{
-        borderTop: "1px solid rgba(255,255,255,0.1)",
-        transition: "background 0.2s",
-      }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.background = "rgba(255,255,255,0.05)")
-      }
-      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-    >
+    <tr className="transaction-row">
       {/* Date */}
-      <td style={{ padding: "16px 24px", color: "#d1d5db" }}>
-        {formatDate(transaction.date)}
-      </td>
+      <td className="table-cell date">{formatDate(transaction.date)}</td>
 
       {/* Description */}
-      <td
-        style={{
-          padding: "16px 24px",
-          color: "white",
-          fontWeight: "500",
-        }}
-      >
-        {transaction.description}
-      </td>
+      <td className="table-cell description">{transaction.description}</td>
 
       {/* Category Badge */}
-      <td style={{ padding: "16px 24px" }}>
+      <td className="table-cell">
         <span
+          className="category-badge"
           style={{
-            padding: "4px 12px",
-            borderRadius: "9999px",
-            fontSize: "14px",
-            fontWeight: "500",
             backgroundColor: getCategoryColor(transaction.category_id) + "66",
             color: getCategoryColor(transaction.category_id),
           }}
@@ -89,49 +68,27 @@ const TransactionRow = ({ transaction, categories, accounts, onDelete }) => {
       </td>
 
       {/* Account */}
-      <td style={{ padding: "16px 24px", color: "#d1d5db" }}>
+      <td className="table-cell account">
         {getAccountName(transaction.account_id)}
       </td>
 
       {/* Amount - Green for income, Red for expense */}
       <td
-        style={{
-          padding: "16px 24px",
-          textAlign: "right",
-          fontWeight: "bold",
-          color: transaction.type === "income" ? "#4ade80" : "#f87171",
-        }}
+        className={`table-cell amount ${
+          transaction.type === "income" ? "amount-income" : "amount-expense"
+        }`}
       >
         {transaction.type === "income" ? "+" : "-"}$
         {parseFloat(transaction.amount).toFixed(2)}
       </td>
 
       {/* Actions */}
-      <td style={{ padding: "16px 24px", textAlign: "right" }}>
-        <div
-          style={{
-            display: "flex",
-            gap: "8px",
-            justifyContent: "flex-end",
-            alignItems: "center",
-          }}
-        >
+      <td className="table-cell actions">
+        <div className="actions-wrapper">
           {/* Favorite Star */}
           <button
             onClick={toggleFavorite}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: isFavorite ? "#fbbf24" : "#6b7280",
-              transition: "color 0.2s",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.color = isFavorite ? "#f59e0b" : "#9ca3af")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = isFavorite ? "#fbbf24" : "#6b7280")
-            }
+            className={`action-icon-btn favorite ${isFavorite ? "active" : ""}`}
             title={isFavorite ? "Remove from favorites" : "Add to favorites"}
           >
             <Star size={18} fill={isFavorite ? "currentColor" : "none"} />
@@ -140,32 +97,13 @@ const TransactionRow = ({ transaction, categories, accounts, onDelete }) => {
           {/* Notes Indicator */}
           {transaction.notes && (
             <div
-              style={{ position: "relative" }}
+              className="notes-tooltip-container"
               onMouseEnter={() => setShowNotesTooltip(true)}
               onMouseLeave={() => setShowNotesTooltip(false)}
             >
               <FileText size={18} color="#60a5fa" />
               {showNotesTooltip && (
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "100%",
-                    right: "0",
-                    marginBottom: "8px",
-                    background: "rgba(0,0,0,0.9)",
-                    color: "white",
-                    padding: "8px 12px",
-                    borderRadius: "8px",
-                    fontSize: "12px",
-                    whiteSpace: "nowrap",
-                    maxWidth: "200px",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    zIndex: 1000,
-                  }}
-                >
-                  {transaction.notes}
-                </div>
+                <div className="notes-tooltip">{transaction.notes}</div>
               )}
             </div>
           )}
@@ -173,15 +111,7 @@ const TransactionRow = ({ transaction, categories, accounts, onDelete }) => {
           {/* Delete Button */}
           <button
             onClick={() => onDelete(transaction.id)}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: "#f87171",
-              transition: "color 0.2s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#f87171")}
+            className="action-icon-btn delete"
           >
             <Trash2 size={20} />
           </button>

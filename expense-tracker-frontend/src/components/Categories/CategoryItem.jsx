@@ -1,78 +1,36 @@
 import React from "react";
 import { Edit2, Trash2 } from "lucide-react";
+import "./Categories.css";
 
 const CategoryItem = ({ category, onEdit, onDelete }) => {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "12px",
-        background: "rgba(255,255,255,0.05)",
-        borderRadius: "8px",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+    <div className="category-item">
+      <div className="category-item-content">
         <div
-          style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "8px",
-            background: `${category.color}33`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-          }}
+          className="category-item-icon"
+          style={{ background: `${category.color}33` }}
         >
           {category.emoji || "📊"}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-          <span style={{ color: "white", fontWeight: "500" }}>
-            {category.name}
-          </span>
+        <div className="category-item-info">
+          <span className="category-item-name">{category.name}</span>
           {category.is_system && (
-            <span
-              style={{
-                fontSize: "11px",
-                color: "#fbbf24",
-                fontWeight: "600",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
-              🔒 System
-            </span>
+            <span className="category-item-system-badge">🔒 System</span>
           )}
         </div>
       </div>
-      <div style={{ display: "flex", gap: "8px" }}>
+      <div className="category-item-actions">
         {!category.is_system && (
           <>
             <button
               onClick={() => onEdit(category)}
-              style={{
-                background: "rgba(168,85,247,0.2)",
-                border: "none",
-                borderRadius: "6px",
-                padding: "6px",
-                cursor: "pointer",
-                color: "#a855f7",
-              }}
+              className="category-item-edit-button"
             >
               <Edit2 size={16} />
             </button>
             <button
               onClick={() => onDelete(category.id)}
-              style={{
-                background: "rgba(239,68,68,0.2)",
-                border: "none",
-                borderRadius: "6px",
-                padding: "6px",
-                cursor: "pointer",
-                color: "#ef4444",
-              }}
+              className="category-item-delete-button"
             >
               <Trash2 size={16} />
             </button>

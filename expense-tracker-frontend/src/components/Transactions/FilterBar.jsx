@@ -1,5 +1,6 @@
 import React from "react";
 import { Filter, Download } from "lucide-react";
+import "./Transactions.css";
 
 const FilterBar = ({
   filterType,
@@ -21,44 +22,20 @@ const FilterBar = ({
   filteredCount,
 }) => {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+    <div className="transactions-container">
       {/* FILTER SECTION */}
-      <div
-        style={{
-          background: "rgba(255,255,255,0.1)",
-          backdropFilter: "blur(10px)",
-          borderRadius: "16px",
-          padding: "24px",
-          border: "1px solid rgba(255,255,255,0.2)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <div className="filter-section">
+        <div className="filter-controls">
+          <div className="filter-label">
             <Filter size={20} color="#9ca3af" />
-            <span style={{ color: "#d1d5db", fontWeight: "500" }}>
-              Filters:
-            </span>
+            <span className="filter-label-text">Filters:</span>
           </div>
 
           {/* Type Filter */}
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            style={{
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: "8px",
-              padding: "8px 16px",
-              color: "white",
-              cursor: "pointer",
-            }}
+            className="filter-select"
           >
             <option value="all">All Types</option>
             <option value="income">Income Only</option>
@@ -69,14 +46,7 @@ const FilterBar = ({
           <select
             value={filterMonth}
             onChange={(e) => setFilterMonth(e.target.value)}
-            style={{
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: "8px",
-              padding: "8px 16px",
-              color: "white",
-              cursor: "pointer",
-            }}
+            className="filter-select"
           >
             <option value="all">All Months</option>
             {Array.from({ length: 12 }, (_, i) => (
@@ -87,35 +57,21 @@ const FilterBar = ({
           </select>
 
           {/* Amount Range Filters */}
-          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <div className="amount-range-inputs">
             <input
               type="number"
               placeholder="Min Amount"
               value={filterMinAmount}
               onChange={(e) => setFilterMinAmount(e.target.value)}
-              style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: "8px",
-                padding: "8px 12px",
-                color: "white",
-                width: "120px",
-              }}
+              className="filter-input"
             />
-            <span style={{ color: "#9ca3af" }}>-</span>
+            <span className="filter-separator">-</span>
             <input
               type="number"
               placeholder="Max Amount"
               value={filterMaxAmount}
               onChange={(e) => setFilterMaxAmount(e.target.value)}
-              style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: "8px",
-                padding: "8px 12px",
-                color: "white",
-                width: "120px",
-              }}
+              className="filter-input"
             />
           </div>
 
@@ -123,14 +79,7 @@ const FilterBar = ({
           <select
             value={filterFavorites}
             onChange={(e) => setFilterFavorites(e.target.value)}
-            style={{
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: "8px",
-              padding: "8px 16px",
-              color: "white",
-              cursor: "pointer",
-            }}
+            className="filter-select"
           >
             <option value="all">All Transactions</option>
             <option value="true">⭐ Favorites Only</option>
@@ -147,15 +96,7 @@ const FilterBar = ({
                 setFilterMaxAmount("");
                 setFilterFavorites("all");
               }}
-              style={{
-                background: "rgba(239,68,68,0.2)",
-                color: "#f87171",
-                padding: "8px 12px",
-                borderRadius: "8px",
-                border: "1px solid rgba(239,68,68,0.3)",
-                cursor: "pointer",
-                fontSize: "12px",
-              }}
+              className="clear-filters-btn"
             >
               Clear Filters
             </button>
@@ -164,73 +105,30 @@ const FilterBar = ({
       </div>
 
       {/* Export Section */}
-      <div
-        style={{
-          background: "rgba(255,255,255,0.1)",
-          backdropFilter: "blur(10px)",
-          borderRadius: "16px",
-          padding: "16px 24px",
-          border: "1px solid rgba(255,255,255,0.2)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "24px",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
+      <div className="export-section">
+        <div className="export-container">
           {/* Left Side: Title & Date Inputs */}
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "24px",
-              alignItems: "center",
-            }}
-          >
+          <div className="export-controls">
             {/* Export Header */}
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div className="filter-label">
               <Download size={20} color="#9ca3af" />
-              <span style={{ color: "#d1d5db", fontWeight: "500" }}>
-                Export:
-              </span>
+              <span className="filter-label-text">Export:</span>
             </div>
 
             {/* Date Range Inputs */}
-            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <div className="date-range-inputs">
               <input
                 type="date"
                 value={exportStartDate}
                 onChange={(e) => setExportStartDate(e.target.value)}
-                style={{
-                  background: "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: "8px",
-                  padding: "8px 12px",
-                  color: "white",
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  colorScheme: "dark",
-                }}
+                className="date-input"
               />
-              <span style={{ color: "#9ca3af" }}>to</span>
+              <span className="filter-separator">to</span>
               <input
                 type="date"
                 value={exportEndDate}
                 onChange={(e) => setExportEndDate(e.target.value)}
-                style={{
-                  background: "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: "8px",
-                  padding: "8px 12px",
-                  color: "white",
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  colorScheme: "dark",
-                }}
+                className="date-input"
               />
 
               {(exportStartDate || exportEndDate) && (
@@ -239,15 +137,7 @@ const FilterBar = ({
                     setExportStartDate("");
                     setExportEndDate("");
                   }}
-                  style={{
-                    background: "rgba(239,68,68,0.2)",
-                    color: "#f87171",
-                    padding: "8px 12px",
-                    borderRadius: "8px",
-                    border: "1px solid rgba(239,68,68,0.3)",
-                    cursor: "pointer",
-                    fontSize: "12px",
-                  }}
+                  className="clear-filters-btn"
                 >
                   Clear
                 </button>
@@ -256,47 +146,14 @@ const FilterBar = ({
           </div>
 
           {/* Right Side: Action Buttons */}
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <span
-              style={{
-                color: "#9ca3af",
-                fontSize: "13px",
-                fontStyle: "italic",
-                marginRight: "8px",
-              }}
-            >
-              ({filteredCount})
-            </span>
+          <div className="export-actions">
+            <span className="filtered-count">({filteredCount})</span>
 
-            <button
-              onClick={onExportCSV}
-              style={{
-                background: "rgba(34,197,94,0.2)",
-                color: "#4ade80",
-                padding: "8px 16px",
-                borderRadius: "8px",
-                border: "1px solid rgba(34,197,94,0.3)",
-                cursor: "pointer",
-                fontWeight: "500",
-                fontSize: "14px",
-              }}
-            >
+            <button onClick={onExportCSV} className="export-btn csv">
               CSV
             </button>
 
-            <button
-              onClick={onExportPDF}
-              style={{
-                background: "rgba(239,68,68,0.2)",
-                color: "#f87171",
-                padding: "8px 16px",
-                borderRadius: "8px",
-                border: "1px solid rgba(239,68,68,0.3)",
-                cursor: "pointer",
-                fontWeight: "500",
-                fontSize: "14px",
-              }}
-            >
+            <button onClick={onExportPDF} className="export-btn pdf">
               PDF
             </button>
           </div>

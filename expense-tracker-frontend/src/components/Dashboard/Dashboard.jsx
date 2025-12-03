@@ -5,6 +5,7 @@ import ChartSection from "./ChartSection";
 import CategorySpendingList from "./CategorySpendingList";
 import { Download } from "lucide-react";
 import { exportAnalyticsToPDF } from "../../utils/Export";
+import "./Dashboard.css";
 
 const Dashboard = () => {
   const {
@@ -16,18 +17,7 @@ const Dashboard = () => {
   } = useApp();
 
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          padding: "48px",
-          color: "white",
-        }}
-      >
-        Loading dashboard data...
-      </div>
-    );
+    return <div className="dashboard-loading">Loading dashboard data...</div>;
   }
 
   const totalExpense = financialSummary.totalExpense;
@@ -42,32 +32,10 @@ const Dashboard = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2 style={{ fontSize: "24px", fontWeight: "bold", color: "white" }}>
-          Dashboard Overview
-        </h2>
-        <button
-          onClick={handleExportPDF}
-          style={{
-            background: "rgba(255,255,255,0.1)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            color: "white",
-            padding: "8px 16px",
-            borderRadius: "8px",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            cursor: "pointer",
-            transition: "all 0.2s",
-          }}
-        >
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h2 className="dashboard-title">Dashboard Overview</h2>
+        <button onClick={handleExportPDF} className="export-btn">
           <Download size={16} />
           Export Report
         </button>
@@ -84,13 +52,7 @@ const Dashboard = () => {
       />
 
       {/* Charts in the middle - Bar chart and Pie chart */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-          gap: "24px",
-        }}
-      >
+      <div className="charts-grid">
         {/* Monthly Trend Bar Chart */}
         <ChartSection
           title="Monthly Trend (Last 6 Months)"
@@ -109,25 +71,8 @@ const Dashboard = () => {
       </div>
 
       {/* Top spending categories at the bottom */}
-      <div
-        style={{
-          background: "rgba(255,255,255,0.1)",
-          backdropFilter: "blur(10px)",
-          borderRadius: "16px",
-          padding: "24px",
-          border: "1px solid rgba(255,255,255,0.2)",
-        }}
-      >
-        <h3
-          style={{
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: "white",
-            marginBottom: "16px",
-          }}
-        >
-          Top Spending Categories
-        </h3>
+      <div className="top-categories-card">
+        <h3 className="top-categories-title">Top Spending Categories</h3>
 
         <CategorySpendingList
           categories={categoryBreakdown.slice(0, 5)}

@@ -1,15 +1,10 @@
 import React from "react";
 import ChartSection from "./ChartSection";
+import "./Dashboard.css";
 
 const Charts = ({ monthlyData, categoryBreakdown }) => {
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-        gap: "24px",
-      }}
-    >
+    <div className="charts-grid">
       {/* Monthly Trend Bar Chart */}
       <ChartSection
         title="Monthly Trend (Last 6 Months)"

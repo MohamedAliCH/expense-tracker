@@ -1,0 +1,289 @@
+/* Budgets Container */
+.budgets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.budgets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.budgets-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+.add-budget-btn {
+  background: linear-gradient(to right, #a855f7, #ec4899);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.add-budget-btn:hover {
+  opacity: 0.9;
+}
+
+.budgets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+}
+
+/* Budget Card */
+.budget-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.budget-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.budget-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.budget-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.budget-category-name {
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.budget-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.budget-percentage {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.budget-percentage.normal {
+  color: #4ade80;
+}
+
+.budget-percentage.exceeded {
+  color: #f87171;
+}
+
+.budget-action-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.budget-action-btn.edit {
+  background: rgba(168, 85, 247, 0.2);
+  color: #a855f7;
+}
+
+.budget-action-btn.edit:hover {
+  background: rgba(168, 85, 247, 0.3);
+}
+
+.budget-action-btn.delete {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.budget-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.budget-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.budget-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.budget-stat-row.period {
+  margin-top: 4px;
+}
+
+.stat-label {
+  color: #9ca3af;
+}
+
+.stat-value {
+  color: white;
+  font-weight: 500;
+}
+
+.stat-value.remaining-positive {
+  color: #4ade80;
+}
+
+.stat-value.remaining-negative {
+  color: #f87171;
+}
+
+.stat-value.period-text {
+  text-transform: capitalize;
+}
+
+.progress-bar-container {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 12px;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.budget-warning {
+  color: #fbbf24;
+  font-size: 14px;
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+/* Modal Styles */
+.budget-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+}
+
+.budget-modal-content {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.budget-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.budget-modal-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.close-modal-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.budget-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  display: block;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
+
+.form-input:focus,
+.form-select:focus {
+  border-color: #a855f7;
+}
+
+.form-select {
+  cursor: pointer;
+}
+
+.submit-btn {
+  width: 100%;
+  background: linear-gradient(to right, #a855f7, #ec4899);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
+  margin-top: 8px;
+  transition: opacity 0.2s;
+}
+
+.submit-btn:hover {
+  opacity: 0.9;
+}

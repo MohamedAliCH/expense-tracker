@@ -1,25 +1,7 @@
-/**
- * TRANSACTION MODAL COMPONENT
- *
- * Modal popup for adding new transactions with form:
- * - Transaction type (Income/Expense)
- * - Amount
- * - Category (filtered by type)
- * - Account
- * - Description
- * - Date
- *
- * Props:
- * - show: boolean - Controls modal visibility
- * - onClose: function - Callback to close modal
- * - onSubmit: function - Callback when form submitted
- * - categories: array - All categories
- * - accounts: array - All accounts
- */
-
 import React, { useState } from "react";
 import { useApp } from "../../contexts/AppContext";
 import { useToast } from "../../contexts/ToastContext";
+import "./Transactions.css";
 
 const TransactionModal = ({ show, onClose }) => {
   const { categories, accounts, addTransaction } = useApp();
@@ -98,97 +80,31 @@ const TransactionModal = ({ show, onClose }) => {
   if (!show) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.5)",
-        backdropFilter: "blur(4px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "16px",
-        zIndex: 50,
-      }}
-    >
-      <div
-        style={{
-          background: "#1e293b",
-          borderRadius: "16px",
-          padding: "32px",
-          maxWidth: "28rem",
-          width: "100%",
-          border: "1px solid rgba(255,255,255,0.2)",
-          maxHeight: "90vh",
-          overflowY: "auto",
-        }}
-      >
+    <div className="transaction-modal-overlay">
+      <div className="transaction-modal-content">
         {/* MODAL TITLE */}
-        <h2
-          style={{
-            fontSize: "24px",
-            fontWeight: "bold",
-            color: "white",
-            marginBottom: "24px",
-          }}
-        >
-          Add Transaction
-        </h2>
+        <h2 className="transaction-modal-title">Add Transaction</h2>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div className="transaction-form">
           {/* TRANSACTION TYPE BUTTONS */}
           <div>
-            <label
-              style={{
-                display: "block",
-                color: "#d1d5db",
-                marginBottom: "8px",
-              }}
-            >
-              Type
-            </label>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "12px",
-              }}
-            >
+            <label className="modal-label">Type</label>
+            <div className="type-toggle-grid">
               <button
                 type="button"
                 onClick={() => handleTypeChange("expense")}
-                style={{
-                  padding: "8px",
-                  borderRadius: "8px",
-                  fontWeight: "500",
-                  border: "none",
-                  cursor: "pointer",
-                  background:
-                    formData.type === "expense"
-                      ? "#ef4444"
-                      : "rgba(255,255,255,0.1)",
-                  color: "white",
-                  transition: "all 0.2s",
-                }}
+                className={`type-btn expense ${
+                  formData.type === "expense" ? "active" : ""
+                }`}
               >
                 Expense
               </button>
               <button
                 type="button"
                 onClick={() => handleTypeChange("income")}
-                style={{
-                  padding: "8px",
-                  borderRadius: "8px",
-                  fontWeight: "500",
-                  border: "none",
-                  cursor: "pointer",
-                  background:
-                    formData.type === "income"
-                      ? "#10b981"
-                      : "rgba(255,255,255,0.1)",
-                  color: "white",
-                  transition: "all 0.2s",
-                }}
+                className={`type-btn income ${
+                  formData.type === "income" ? "active" : ""
+                }`}
               >
                 Income
               </button>
@@ -197,15 +113,7 @@ const TransactionModal = ({ show, onClose }) => {
 
           {/* AMOUNT INPUT */}
           <div>
-            <label
-              style={{
-                display: "block",
-                color: "#d1d5db",
-                marginBottom: "8px",
-              }}
-            >
-              Amount
-            </label>
+            <label className="modal-label">Amount</label>
             <input
               type="number"
               step="0.01"
@@ -213,44 +121,20 @@ const TransactionModal = ({ show, onClose }) => {
               onChange={(e) =>
                 setFormData({ ...formData, amount: e.target.value })
               }
-              style={{
-                width: "100%",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-                fontSize: "16px",
-              }}
+              className="modal-input"
               placeholder="0.00"
             />
           </div>
 
           {/* CATEGORY SELECT - Filtered by type */}
           <div>
-            <label
-              style={{
-                display: "block",
-                color: "#d1d5db",
-                marginBottom: "8px",
-              }}
-            >
-              Category
-            </label>
+            <label className="modal-label">Category</label>
             <select
               value={formData.category_id}
               onChange={(e) =>
                 setFormData({ ...formData, category_id: e.target.value })
               }
-              style={{
-                width: "100%",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-                fontSize: "16px",
-              }}
+              className="modal-select"
             >
               <option value="">Select category</option>
               {categories
@@ -265,29 +149,13 @@ const TransactionModal = ({ show, onClose }) => {
 
           {/* ACCOUNT SELECT */}
           <div>
-            <label
-              style={{
-                display: "block",
-                color: "#d1d5db",
-                marginBottom: "8px",
-              }}
-            >
-              Account
-            </label>
+            <label className="modal-label">Account</label>
             <select
               value={formData.account_id}
               onChange={(e) =>
                 setFormData({ ...formData, account_id: e.target.value })
               }
-              style={{
-                width: "100%",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-                fontSize: "16px",
-              }}
+              className="modal-select"
             >
               <option value="">Select account</option>
               {accounts.map((acc) => (
@@ -300,96 +168,47 @@ const TransactionModal = ({ show, onClose }) => {
 
           {/* DESCRIPTION INPUT */}
           <div>
-            <label
-              style={{
-                display: "block",
-                color: "#d1d5db",
-                marginBottom: "8px",
-              }}
-            >
-              Description
-            </label>
+            <label className="modal-label">Description</label>
             <input
               type="text"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              style={{
-                width: "100%",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-                fontSize: "16px",
-              }}
+              className="modal-input"
               placeholder="What was this for?"
             />
           </div>
 
           {/* DATE INPUT */}
           <div>
-            <label
-              style={{
-                display: "block",
-                color: "#d1d5db",
-                marginBottom: "8px",
-              }}
-            >
-              Date
-            </label>
+            <label className="modal-label">Date</label>
             <input
               type="date"
               value={formData.date}
               onChange={(e) =>
                 setFormData({ ...formData, date: e.target.value })
               }
-              style={{
-                width: "100%",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-                fontSize: "16px",
-              }}
+              className="modal-input"
             />
           </div>
 
           {/* NOTES TEXTAREA */}
           <div>
-            <label
-              style={{
-                display: "block",
-                color: "#d1d5db",
-                marginBottom: "8px",
-              }}
-            >
-              Notes (Optional)
-            </label>
+            <label className="modal-label">Notes (Optional)</label>
             <textarea
               value={formData.notes}
               onChange={(e) =>
                 setFormData({ ...formData, notes: e.target.value })
               }
               rows={3}
-              style={{
-                width: "100%",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-                fontSize: "16px",
-                resize: "vertical",
-              }}
+              className="modal-textarea"
               placeholder="Add any additional notes..."
             />
           </div>
 
           {/* FAVORITE CHECKBOX */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div className="checkbox-wrapper">
             <input
               type="checkbox"
               id="is_favorite"
@@ -397,69 +216,26 @@ const TransactionModal = ({ show, onClose }) => {
               onChange={(e) =>
                 setFormData({ ...formData, is_favorite: e.target.checked })
               }
-              style={{
-                width: "18px",
-                height: "18px",
-                cursor: "pointer",
-              }}
+              className="checkbox-input"
             />
-            <label
-              htmlFor="is_favorite"
-              style={{
-                color: "#d1d5db",
-                cursor: "pointer",
-                userSelect: "none",
-              }}
-            >
+            <label htmlFor="is_favorite" className="checkbox-label">
               ⭐ Mark as Favorite
             </label>
           </div>
 
           {/* ACTION BUTTONS */}
-          <div
-            style={{
-              display: "flex",
-              gap: "12px",
-              paddingTop: "16px",
-            }}
-          >
+          <div className="modal-actions">
             <button
               type="button"
               onClick={onClose}
-              style={{
-                flex: 1,
-                background: "rgba(255,255,255,0.1)",
-                color: "white",
-                padding: "12px",
-                borderRadius: "8px",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: "500",
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(255,255,255,0.2)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "rgba(255,255,255,0.1)")
-              }
+              className="modal-btn cancel"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSubmit}
-              style={{
-                flex: 1,
-                background: "linear-gradient(to right, #a855f7, #ec4899)",
-                color: "white",
-                padding: "12px",
-                borderRadius: "8px",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: "500",
-                transition: "all 0.2s",
-              }}
+              className="modal-btn submit"
             >
               Add Transaction
             </button>
