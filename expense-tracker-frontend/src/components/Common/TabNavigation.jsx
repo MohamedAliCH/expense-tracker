@@ -14,21 +14,35 @@ const TabNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Helper to check if tab is active
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (path === "/dashboard") {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  const handleTabClick = (path) => {
+    navigate(path);
+  };
 
   return (
-    <div className="tab-navigation">
-      {TABS.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => navigate(tab.path)}
-          className={`tab-button ${isActive(tab.path) ? "active" : ""}`}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
+    <nav className="tab-navigation" role="tablist" aria-label="Main navigation">
+      {TABS.map((tab) => {
+        const active = isActive(tab.path);
+        return (
+          <button
+            key={tab.id}
+            onClick={() => handleTabClick(tab.path)}
+            className={`tab-button ${active ? "active" : ""}`}
+            role="tab"
+            aria-selected={active}
+            aria-current={active ? "page" : undefined}
+          >
+            {tab.label}
+          </button>
+        );
+      })}
+    </nav>
   );
 };
 

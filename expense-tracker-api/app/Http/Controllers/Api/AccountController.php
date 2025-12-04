@@ -33,7 +33,7 @@ class AccountController extends Controller
         }
     }
 
-    /* OLD ELOQUENT VERSION:
+    /*  ELOQUENT VERSION:
     public function index()
     {
         return Account::where('user_id', auth()->id())->get();

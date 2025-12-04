@@ -479,3 +479,115 @@
 .modal-btn.cancel:hover {
   background: rgba(255, 255, 255, 0.15);
 }
+
+/* ==========================================
+   RESPONSIVE STYLES
+   ========================================== */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+  .transactions-container {
+    gap: 16px;
+  }
+
+  .filter-section {
+    padding: 16px;
+  }
+
+  .filter-controls {
+    gap: 12px;
+  }
+
+  .transaction-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .transaction-table {
+    min-width: 600px;
+  }
+
+  .transaction-modal-content {
+    max-width: 90%;
+    margin: 20px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 480px) {
+  .transactions-container {
+    gap: 12px;
+  }
+
+  .filter-section {
+    padding: 12px;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .filter-label {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .filter-select,
+  .filter-input {
+    width: 100%;
+  }
+
+  .amount-range-inputs {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .transaction-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .transaction-table {
+    min-width: 700px;
+    font-size: 13px;
+  }
+
+  .transaction-table th,
+  .transaction-table td {
+    padding: 10px 8px;
+  }
+
+  .transaction-modal-overlay {
+    padding: 0;
+  }
+
+  .transaction-modal-content {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .transaction-modal-title {
+    font-size: 18px;
+  }
+
+  .transaction-form {
+    gap: 12px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-btn,
+  .submit-btn {
+    width: 100%;
+  }
+}

@@ -146,3 +146,87 @@
   min-width: 96px;
   text-align: right;
 }
+
+/* ==========================================
+   RESPONSIVE STYLES
+   ========================================== */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+  .dashboard-container {
+    gap: 16px;
+  }
+
+  .summary-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .chart-section,
+  .top-categories-card {
+    padding: 16px;
+  }
+
+  .dashboard-title,
+  .chart-title,
+  .top-categories-title {
+    font-size: 18px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 480px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .export-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .summary-cards-grid {
+    gap: 12px;
+  }
+
+  .charts-grid {
+    gap: 12px;
+  }
+
+  .chart-section,
+  .top-categories-card {
+    padding: 12px;
+  }
+
+  .dashboard-title,
+  .chart-title,
+  .top-categories-title {
+    font-size: 16px;
+  }
+
+  .category-item {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .category-left {
+    flex: 1 1 100%;
+  }
+
+  .category-right {
+    flex: 1 1 100%;
+    gap: 12px;
+  }
+
+  .category-amount {
+    min-width: 80px;
+    font-size: 14px;
+  }
+}

@@ -38,7 +38,6 @@ const PrivateLayout = () => {
       <div className="content-wrapper">
         <Header onAddTransaction={() => setShowModal(true)} />
         <TabNavigation />
-
         <Outlet />
 
         <TransactionModal

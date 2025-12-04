@@ -304,3 +304,70 @@
 .category-item-delete-button:hover {
   background: rgba(239, 68, 68, 0.3);
 }
+
+/* ==========================================
+   RESPONSIVE STYLES
+   ========================================== */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .category-section {
+    padding: 16px;
+  }
+
+  .category-modal {
+    max-width: 90%;
+    margin: 20px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 480px) {
+  .category-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .category-add-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .category-grid {
+    gap: 12px;
+  }
+
+  .category-section {
+    padding: 12px;
+  }
+
+  .category-modal-overlay {
+    padding: 0;
+  }
+
+  .category-modal {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .category-modal-title {
+    font-size: 18px;
+  }
+
+  .category-form {
+    gap: 12px;
+  }
+
+  .category-emoji-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
