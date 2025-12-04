@@ -4,6 +4,7 @@ import { useApp } from "../../contexts/AppContext";
 import { useToast } from "../../contexts/ToastContext";
 import BudgetCard from "./BudgetCard";
 import ConfirmDialog from "../ConfirmDialog";
+import "../Common/Forms.css";
 import "./Budgets.css";
 
 const BudgetList = () => {
@@ -20,9 +21,11 @@ const BudgetList = () => {
     period: "monthly",
     start_date: new Date().toISOString().split("T")[0],
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       if (editingBudget) {
@@ -44,6 +47,8 @@ const BudgetList = () => {
     } catch (error) {
       console.error("Error saving budget:", error);
       showToast("Failed to save budget", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -117,20 +122,23 @@ const BudgetList = () => {
               <button
                 onClick={() => setShowModal(false)}
                 className="close-modal-btn"
+                disabled={isSubmitting}
               >
                 <X size={24} />
               </button>
             </div>
 
-            <div className="budget-form">
+            <form onSubmit={handleSubmit} className="budget-form">
               <div className="form-group">
-                <label className="form-label">Category</label>
+                <label className="form-label">Category *</label>
                 <select
                   value={formData.category_id}
                   onChange={(e) =>
                     setFormData({ ...formData, category_id: e.target.value })
                   }
                   className="form-select"
+                  required
+                  disabled={isSubmitting}
                 >
                   <option value="">Select category</option>
                   {categories
@@ -144,7 +152,7 @@ const BudgetList = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Budget Amount</label>
+                <label className="form-label">Budget Amount *</label>
                 <input
                   type="number"
                   step="0.01"
@@ -154,6 +162,8 @@ const BudgetList = () => {
                   }
                   className="form-input"
                   placeholder="0.00"
+                  required
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -165,6 +175,7 @@ const BudgetList = () => {
                     setFormData({ ...formData, period: e.target.value })
                   }
                   className="form-select"
+                  disabled={isSubmitting}
                 >
                   <option value="weekly">Weekly</option>
                   <option value="monthly">Monthly</option>
@@ -173,7 +184,7 @@ const BudgetList = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Start Date</label>
+                <label className="form-label">Start Date *</label>
                 <input
                   type="date"
                   value={formData.start_date}
@@ -181,13 +192,23 @@ const BudgetList = () => {
                     setFormData({ ...formData, start_date: e.target.value })
                   }
                   className="form-input"
+                  required
+                  disabled={isSubmitting}
                 />
               </div>
 
-              <button onClick={handleSubmit} className="submit-btn">
-                {editingBudget ? "Update Budget" : "Create Budget"}
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? "Saving..."
+                  : editingBudget
+                  ? "Update Budget"
+                  : "Create Budget"}
               </button>
-            </div>
+            </form>
           </div>
         </div>
       )}

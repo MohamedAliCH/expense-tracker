@@ -1,15 +1,28 @@
 import React from "react";
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2, Wallet, Landmark, CreditCard } from "lucide-react";
 import "./Accounts.css";
 
 const AccountCard = ({ account, onEdit, onDelete }) => {
   const balance = parseFloat(account.balance);
   const isPositive = balance >= 0;
 
+  const getIcon = (type) => {
+    switch (type) {
+      case "bank":
+        return <Landmark size={14} color="#4ade80" />;
+      case "credit_card":
+        return <CreditCard size={14} color="#f87171" />;
+      case "wallet":
+      default:
+        return <Wallet size={14} color="#a855f7" />;
+    }
+  };
+
   return (
     <div className="account-card">
       <div className="account-card-header">
         <span className="account-type-badge">
+          {getIcon(account.type)}
           {account.type.replace("_", " ")}
         </span>
 

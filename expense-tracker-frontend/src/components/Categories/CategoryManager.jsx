@@ -4,6 +4,7 @@ import { useApp } from "../../contexts/AppContext";
 import { useToast } from "../../contexts/ToastContext";
 import CategoryItem from "./CategoryItem";
 import ConfirmDialog from "../ConfirmDialog";
+import "../Common/Forms.css";
 import "./Categories.css";
 
 const CategoryManager = () => {
@@ -19,9 +20,11 @@ const CategoryManager = () => {
     type: "expense",
     emoji: "📊",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       if (editingCategory) {
@@ -38,6 +41,8 @@ const CategoryManager = () => {
     } catch (error) {
       console.error("Error saving category:", error);
       showToast(error.message || "Failed to save category", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -139,14 +144,15 @@ const CategoryManager = () => {
               <button
                 onClick={() => setShowModal(false)}
                 className="category-modal-close"
+                disabled={isSubmitting}
               >
                 <X size={24} />
               </button>
             </div>
 
-            <div className="category-form">
-              <div className="category-form-group">
-                <label className="category-label">Icon</label>
+            <form onSubmit={handleSubmit} className="category-form">
+              <div className="form-group">
+                <label className="form-label">Icon</label>
                 <div className="category-emoji-suggestions">
                   {/* Emoji input */}
                   <input
@@ -158,6 +164,7 @@ const CategoryManager = () => {
                     className="category-emoji-input"
                     placeholder="Type an emoji or click below"
                     maxLength="4"
+                    disabled={isSubmitting}
                   />
 
                   {/* Popular emoji suggestions */}
@@ -185,6 +192,7 @@ const CategoryManager = () => {
                           className={`category-emoji-button ${
                             formData.emoji === emoji ? "selected" : ""
                           }`}
+                          disabled={isSubmitting}
                         >
                           {emoji}
                         </button>
@@ -199,21 +207,23 @@ const CategoryManager = () => {
                 </div>
               </div>
 
-              <div className="category-form-group">
-                <label className="category-label">Category Name</label>
+              <div className="form-group">
+                <label className="form-label">Category Name *</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="category-input"
+                  className="form-input"
                   placeholder="e.g., Groceries"
+                  required
+                  disabled={isSubmitting}
                 />
               </div>
 
-              <div className="category-form-group">
-                <label className="category-label">Color</label>
+              <div className="form-group">
+                <label className="form-label">Color</label>
                 <input
                   type="color"
                   value={formData.color}
@@ -221,11 +231,12 @@ const CategoryManager = () => {
                     setFormData({ ...formData, color: e.target.value })
                   }
                   className="category-color-input"
+                  disabled={isSubmitting}
                 />
               </div>
 
-              <div className="category-form-group">
-                <label className="category-label">Type</label>
+              <div className="form-group">
+                <label className="form-label">Type</label>
                 <div className="category-type-buttons">
                   <button
                     type="button"
@@ -235,6 +246,7 @@ const CategoryManager = () => {
                     className={`category-type-button ${
                       formData.type === "expense" ? "expense" : ""
                     }`}
+                    disabled={isSubmitting}
                   >
                     📦 Expense
                   </button>
@@ -244,16 +256,25 @@ const CategoryManager = () => {
                     className={`category-type-button ${
                       formData.type === "income" ? "income" : ""
                     }`}
+                    disabled={isSubmitting}
                   >
                     📈 Income
                   </button>
                 </div>
               </div>
 
-              <button onClick={handleSubmit} className="category-submit-button">
-                {editingCategory ? "Update Category" : "Create Category"}
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? "Saving..."
+                  : editingCategory
+                  ? "Update Category"
+                  : "Create Category"}
               </button>
-            </div>
+            </form>
           </div>
         </div>
       )}

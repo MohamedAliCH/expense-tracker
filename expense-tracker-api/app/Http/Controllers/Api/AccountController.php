@@ -203,17 +203,8 @@ class AccountController extends Controller
             $userId = $request->user()->id;
 
             // Check for transactions
-            $transactionCount = DB::select("
-                SELECT COUNT(*) as count 
-                FROM transactions 
-                WHERE account_id = ? AND user_id = ?
-            ", [$id, $userId]);
-
-            if ($transactionCount[0]->count > 0) {
-                return response()->json([
-                    'error' => "Cannot delete account. It has {$transactionCount[0]->count} transaction(s) associated with it."
-                ], 400);
-            }
+            // Transaction check removed to allow cascade delete
+            // The database foreign key constraint is set to ON DELETE CASCADE
 
             $deleted = DB::delete("
                 DELETE FROM accounts 

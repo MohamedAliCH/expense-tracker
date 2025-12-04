@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useApp } from "../../contexts/AppContext";
 import { useToast } from "../../contexts/ToastContext";
+import "../Common/Forms.css";
 import "./Transactions.css";
 
 const TransactionModal = ({ show, onClose }) => {
@@ -88,7 +89,7 @@ const TransactionModal = ({ show, onClose }) => {
         <div className="transaction-form">
           {/* TRANSACTION TYPE BUTTONS */}
           <div>
-            <label className="modal-label">Type</label>
+            <label className="form-label">Type</label>
             <div className="type-toggle-grid">
               <button
                 type="button"
@@ -112,8 +113,8 @@ const TransactionModal = ({ show, onClose }) => {
           </div>
 
           {/* AMOUNT INPUT */}
-          <div>
-            <label className="modal-label">Amount</label>
+          <div className="form-group">
+            <label className="form-label">Amount</label>
             <input
               type="number"
               step="0.01"
@@ -121,20 +122,20 @@ const TransactionModal = ({ show, onClose }) => {
               onChange={(e) =>
                 setFormData({ ...formData, amount: e.target.value })
               }
-              className="modal-input"
+              className="form-input"
               placeholder="0.00"
             />
           </div>
 
           {/* CATEGORY SELECT - Filtered by type */}
-          <div>
-            <label className="modal-label">Category</label>
+          <div className="form-group">
+            <label className="form-label">Category</label>
             <select
               value={formData.category_id}
               onChange={(e) =>
                 setFormData({ ...formData, category_id: e.target.value })
               }
-              className="modal-select"
+              className="form-select"
             >
               <option value="">Select category</option>
               {categories
@@ -148,14 +149,14 @@ const TransactionModal = ({ show, onClose }) => {
           </div>
 
           {/* ACCOUNT SELECT */}
-          <div>
-            <label className="modal-label">Account</label>
+          <div className="form-group">
+            <label className="form-label">Account</label>
             <select
               value={formData.account_id}
               onChange={(e) =>
                 setFormData({ ...formData, account_id: e.target.value })
               }
-              className="modal-select"
+              className="form-select"
             >
               <option value="">Select account</option>
               {accounts.map((acc) => (
@@ -167,42 +168,42 @@ const TransactionModal = ({ show, onClose }) => {
           </div>
 
           {/* DESCRIPTION INPUT */}
-          <div>
-            <label className="modal-label">Description</label>
+          <div className="form-group">
+            <label className="form-label">Description</label>
             <input
               type="text"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className="modal-input"
+              className="form-input"
               placeholder="What was this for?"
             />
           </div>
 
           {/* DATE INPUT */}
-          <div>
-            <label className="modal-label">Date</label>
+          <div className="form-group">
+            <label className="form-label">Date</label>
             <input
               type="date"
               value={formData.date}
               onChange={(e) =>
                 setFormData({ ...formData, date: e.target.value })
               }
-              className="modal-input"
+              className="form-input"
             />
           </div>
 
           {/* NOTES TEXTAREA */}
-          <div>
-            <label className="modal-label">Notes (Optional)</label>
+          <div className="form-group">
+            <label className="form-label">Notes (Optional)</label>
             <textarea
               value={formData.notes}
               onChange={(e) =>
                 setFormData({ ...formData, notes: e.target.value })
               }
               rows={3}
-              className="modal-textarea"
+              className="form-textarea"
               placeholder="Add any additional notes..."
             />
           </div>
@@ -232,11 +233,7 @@ const TransactionModal = ({ show, onClose }) => {
             >
               Cancel
             </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="modal-btn submit"
-            >
+            <button type="button" onClick={handleSubmit} className="submit-btn">
               Add Transaction
             </button>
           </div>
