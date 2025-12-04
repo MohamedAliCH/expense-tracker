@@ -4,6 +4,7 @@ import { useApp } from "../../contexts/AppContext";
 import { useToast } from "../../contexts/ToastContext";
 import AccountCard from "./AccountCard";
 import ConfirmDialog from "../ConfirmDialog";
+import EmptyState from "../Common/EmptyState";
 import "../Common/Forms.css";
 import "./Accounts.css";
 
@@ -127,9 +128,17 @@ const AccountList = () => {
             />
           ))
         ) : (
-          <p className="no-accounts">
-            No accounts yet. Click "Add Account" to get started.
-          </p>
+          <EmptyState
+            icon="💳"
+            title="No Accounts Yet"
+            message="Create your first account to start tracking your finances. You can add bank accounts, wallets, or credit cards."
+            actionLabel="Add Your First Account"
+            onAction={() => {
+              setEditingAccount(null);
+              setFormData({ name: "", balance: "", type: "wallet" });
+              setShowModal(true);
+            }}
+          />
         )}
       </div>
 

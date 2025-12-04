@@ -3,6 +3,7 @@ import { useApp } from "../../contexts/AppContext";
 import SummaryCards from "./SummaryCards";
 import ChartSection from "./ChartSection";
 import CategorySpendingList from "./CategorySpendingList";
+import EmptyState from "../Common/EmptyState";
 import { Download } from "lucide-react";
 import { exportAnalyticsToPDF } from "../../utils/Export";
 import "./Dashboard.css";
@@ -51,34 +52,53 @@ const Dashboard = () => {
         }}
       />
 
-      {/* Charts in the middle - Bar chart and Pie chart */}
-      <div className="charts-grid">
-        {/* Monthly Trend Bar Chart */}
-        <ChartSection
-          title="Monthly Trend (Last 6 Months)"
-          type="bar"
-          data={monthlyData}
-          dataKeys={["income", "expense"]}
-          colors={["#4ade80", "#f87171"]}
-        />
+      {/* Show charts and categories only if there's data */}
+      {transactions && transactions.length > 0 ? (
+        <>
+          {/* Charts in the middle - Bar chart and Pie chart */}
+          <div className="charts-grid">
+            {/* Monthly Trend Bar Chart */}
+            <ChartSection
+              title="Monthly Trend (Last 6 Months)"
+              type="bar"
+              data={monthlyData}
+              dataKeys={["income", "expense"]}
+              colors={["#4ade80", "#f87171"]}
+            />
 
-        {/* Category Breakdown Pie Chart */}
-        <ChartSection
-          title="Expense by Category"
-          type="pie"
-          data={categoryBreakdown}
-        />
-      </div>
+            {/* Category Breakdown Pie Chart */}
+            <ChartSection
+              title="Expense by Category"
+              type="pie"
+              data={categoryBreakdown}
+            />
+          </div>
 
-      {/* Top spending categories at the bottom */}
-      <div className="top-categories-card">
-        <h3 className="top-categories-title">Top Spending Categories</h3>
+          {/* Top spending categories at the bottom */}
+          <div className="top-categories-card">
+            <h3 className="top-categories-title">Top Spending Categories</h3>
 
-        <CategorySpendingList
-          categories={categoryBreakdown.slice(0, 5)}
-          totalExpense={totalExpense}
+            {categoryBreakdown && categoryBreakdown.length > 0 ? (
+              <CategorySpendingList
+                categories={categoryBreakdown.slice(0, 5)}
+                totalExpense={totalExpense}
+              />
+            ) : (
+              <EmptyState
+                icon="📊"
+                title="No Spending Data"
+                message="Start adding transactions to see your spending breakdown by category."
+              />
+            )}
+          </div>
+        </>
+      ) : (
+        <EmptyState
+          icon="📈"
+          title="No Transaction Data"
+          message="Your dashboard will come to life once you start adding transactions. Track your income and expenses to see insightful charts and analytics."
         />
-      </div>
+      )}
     </div>
   );
 };

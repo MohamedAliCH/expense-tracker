@@ -22,6 +22,7 @@ import { useToast } from "../../contexts/ToastContext";
 import FilterBar from "./FilterBar";
 import TransactionRow from "./TransactionRow";
 import ConfirmDialog from "../ConfirmDialog";
+import EmptyState from "../Common/EmptyState";
 import "./Transactions.css";
 
 const TransactionTable = () => {
@@ -152,36 +153,46 @@ const TransactionTable = () => {
       />
 
       {/* TRANSACTIONS TABLE */}
-      <div className="table-container">
-        <div className="table-scroll">
-          <table className="transaction-table">
-            {/* TABLE HEADER */}
-            <thead className="table-head">
-              <tr>
-                <th className="table-header-cell">Date</th>
-                <th className="table-header-cell">Description</th>
-                <th className="table-header-cell">Category</th>
-                <th className="table-header-cell">Account</th>
-                <th className="table-header-cell right">Amount</th>
-                <th className="table-header-cell right">Actions</th>
-              </tr>
-            </thead>
+      {filteredTransactions.length > 0 ? (
+        <>
+          <div className="table-container">
+            <div className="table-scroll">
+              <table className="transaction-table">
+                {/* TABLE HEADER */}
+                <thead className="table-head">
+                  <tr>
+                    <th className="table-header-cell">Date</th>
+                    <th className="table-header-cell">Description</th>
+                    <th className="table-header-cell">Category</th>
+                    <th className="table-header-cell">Account</th>
+                    <th className="table-header-cell right">Amount</th>
+                    <th className="table-header-cell right">Actions</th>
+                  </tr>
+                </thead>
 
-            {/* TABLE BODY */}
-            <tbody>
-              {paginatedTransactions.map((transaction) => (
-                <TransactionRow
-                  key={transaction.id}
-                  transaction={transaction}
-                  categories={categories}
-                  accounts={accounts}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                {/* TABLE BODY */}
+                <tbody>
+                  {paginatedTransactions.map((transaction) => (
+                    <TransactionRow
+                      key={transaction.id}
+                      transaction={transaction}
+                      categories={categories}
+                      accounts={accounts}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      ) : (
+        <EmptyState
+          icon="📊"
+          title="No Transactions Found"
+          message="Start tracking your finances by adding your first transaction. You can record income and expenses to see where your money goes."
+        />
+      )}
 
       {/* PAGINATION CONTROLS */}
       {totalPages > 1 && (

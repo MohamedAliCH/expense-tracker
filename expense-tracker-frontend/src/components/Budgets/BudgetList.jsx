@@ -4,6 +4,7 @@ import { useApp } from "../../contexts/AppContext";
 import { useToast } from "../../contexts/ToastContext";
 import BudgetCard from "./BudgetCard";
 import ConfirmDialog from "../ConfirmDialog";
+import EmptyState from "../Common/EmptyState";
 import "../Common/Forms.css";
 import "./Budgets.css";
 
@@ -101,14 +102,33 @@ const BudgetList = () => {
       </div>
 
       <div className="budgets-grid">
-        {budgetAnalysis.map((budget) => (
-          <BudgetCard
-            key={budget.id}
-            budget={budget}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+        {budgetAnalysis && budgetAnalysis.length > 0 ? (
+          budgetAnalysis.map((budget) => (
+            <BudgetCard
+              key={budget.id}
+              budget={budget}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          ))
+        ) : (
+          <EmptyState
+            icon="💰"
+            title="No Budgets Set"
+            message="Create your first budget to manage your spending and stay on track with your financial goals."
+            actionLabel="Create Your First Budget"
+            onAction={() => {
+              setEditingBudget(null);
+              setFormData({
+                category_id: "",
+                amount: "",
+                period: "monthly",
+                start_date: new Date().toISOString().split("T")[0],
+              });
+              setShowModal(true);
+            }}
           />
-        ))}
+        )}
       </div>
 
       {/* Modal */}

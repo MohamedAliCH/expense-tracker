@@ -4,6 +4,7 @@ import { useApp } from "../../contexts/AppContext";
 import { useToast } from "../../contexts/ToastContext";
 import CategoryItem from "./CategoryItem";
 import ConfirmDialog from "../ConfirmDialog";
+import EmptyState from "../Common/EmptyState";
 import "../Common/Forms.css";
 import "./Categories.css";
 
@@ -104,14 +105,33 @@ const CategoryManager = () => {
             📦 Expense Categories
           </h3>
           <div className="category-list">
-            {expenseCategories.map((cat) => (
-              <CategoryItem
-                key={cat.id}
-                category={cat}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+            {expenseCategories.length > 0 ? (
+              expenseCategories.map((cat) => (
+                <CategoryItem
+                  key={cat.id}
+                  category={cat}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))
+            ) : (
+              <EmptyState
+                icon="📦"
+                title="No Expense Categories"
+                message="Create expense categories to organize your spending."
+                actionLabel="Add Expense Category"
+                onAction={() => {
+                  setEditingCategory(null);
+                  setFormData({
+                    name: "",
+                    color: "#a855f7",
+                    type: "expense",
+                    emoji: "📊",
+                  });
+                  setShowModal(true);
+                }}
               />
-            ))}
+            )}
           </div>
         </div>
 
@@ -121,14 +141,33 @@ const CategoryManager = () => {
             📈 Income Categories
           </h3>
           <div className="category-list">
-            {incomeCategories.map((cat) => (
-              <CategoryItem
-                key={cat.id}
-                category={cat}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+            {incomeCategories.length > 0 ? (
+              incomeCategories.map((cat) => (
+                <CategoryItem
+                  key={cat.id}
+                  category={cat}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))
+            ) : (
+              <EmptyState
+                icon="📈"
+                title="No Income Categories"
+                message="Create income categories to track your earnings."
+                actionLabel="Add Income Category"
+                onAction={() => {
+                  setEditingCategory(null);
+                  setFormData({
+                    name: "",
+                    color: "#a855f7",
+                    type: "income",
+                    emoji: "💰",
+                  });
+                  setShowModal(true);
+                }}
               />
-            ))}
+            )}
           </div>
         </div>
       </div>
