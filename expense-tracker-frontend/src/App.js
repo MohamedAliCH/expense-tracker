@@ -14,6 +14,8 @@ import BudgetList from "./components/Budgets/BudgetList";
 import AccountList from "./components/Accounts/AccountList";
 import TransactionModal from "./components/Transactions/TransactionModal";
 import CategoryManager from "./components/Categories/CategoryManager";
+import UpgradePage from "./components/Premium/UpgradePage";
+import PaymentList from "./components/Payments/PaymentList";
 
 // Layout for authenticated routes
 const PrivateLayout = () => {
@@ -100,6 +102,8 @@ function App() {
               <Route path="/budgets" element={<BudgetList />} />
               <Route path="/accounts" element={<AccountList />} />
               <Route path="/categories" element={<CategoryManager />} />
+              <Route path="/upgrade" element={<UpgradePage />} />
+              <Route path="/payments" element={<PaymentList />} />
             </Route>
 
             {/* Catch all - redirect to dashboard */}

@@ -10,14 +10,8 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        // Get the first user or create one if not exists
-        $user = User::first() ?? User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
-        // Don't delete all categories to preserve transactions
-        // Instead, update existing ones or create new ones
+        // System Defaults (available to all users, cannot be deleted)
+        // Set user_id to NULL and is_system to 1
         
         $categories = [
             // Expenses
@@ -41,13 +35,14 @@ class CategorySeeder extends Seeder
         foreach ($categories as $cat) {
             Category::updateOrCreate(
                 [
-                    'user_id' => $user->id,
+                    'user_id' => null, // Global system category
                     'name' => $cat['name'],
                     'type' => $cat['type'],
                 ],
                 [
                     'color' => $cat['color'],
                     'emoji' => $cat['emoji'],
+                    'is_system' => true,
                 ]
             );
         }

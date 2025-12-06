@@ -1,0 +1,354 @@
+/* Upgrade Page Container */
+.upgrade-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+  color: white;
+}
+
+/* Back Button */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 24px;
+  transition: all 0.2s;
+  padding: 8px 0;
+}
+
+.back-btn:hover {
+  color: white;
+  transform: translateX(-4px);
+}
+
+/* Header */
+.upgrade-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.crown-icon {
+  color: #f59e0b;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 4px 6px rgba(245, 158, 11, 0.3));
+}
+
+.upgrade-header h1 {
+  font-size: 2.5rem;
+  color: white;
+  margin: 0 0 8px 0;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.upgrade-header p {
+  color: #d1d5db;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Plans Grid */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+/* Plan Card */
+.plan-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2),
+    0 10px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+.plan-card.popular {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 40px -10px rgba(139, 92, 246, 0.3);
+}
+
+.plan-card.popular:hover {
+  background: rgba(139, 92, 246, 0.15);
+  box-shadow: 0 0 50px -10px rgba(139, 92, 246, 0.4);
+}
+
+/* Badges */
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.savings-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #4ade80;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Card Content */
+.plan-card h3 {
+  font-size: 1.5rem;
+  color: white;
+  margin: 0 0 16px 0;
+  font-weight: 700;
+}
+
+.price {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.price .amount {
+  font-size: 3rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.025em;
+}
+
+.price .period {
+  color: #9ca3af;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Features List */
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px 0;
+  flex-grow: 1;
+}
+
+.features-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  color: #e5e7eb;
+  font-size: 0.95rem;
+}
+
+.check-icon {
+  color: #4ade80;
+  flex-shrink: 0;
+  background: rgba(74, 222, 128, 0.1);
+  padding: 2px;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+}
+
+/* Buttons */
+.subscribe-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.subscribe-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.subscribe-btn.primary {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  border: none;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.subscribe-btn.primary:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}
+
+.subscribe-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Free Features Section */
+.free-features {
+  text-align: center;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.free-features h4 {
+  color: #d1d5db;
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+}
+
+.free-features p {
+  color: #9ca3af;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Premium Active State */
+.premium-active-card {
+  text-align: center;
+  background: rgba(139, 92, 246, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 48px 32px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 0 60px -20px rgba(139, 92, 246, 0.2);
+}
+
+.premium-active-card h2 {
+  color: white;
+  margin: 16px 0;
+  font-size: 2rem;
+}
+
+.premium-active-card p {
+  color: #d1d5db;
+}
+
+.subscription-details {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 32px 0;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.subscription-details p {
+  margin: 8px 0;
+  color: #e5e7eb;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.subscription-details strong {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.manage-btn {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.manage-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.4);
+}
+
+.cancel-btn {
+  background: transparent;
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: 1rem;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #f87171;
+  transform: translateY(-2px);
+}
+
+.cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .upgrade-container {
+    padding: 16px;
+  }
+
+  .upgrade-header h1 {
+    font-size: 2rem;
+  }
+
+  .plan-card {
+    padding: 24px;
+  }
+
+  .premium-active-card {
+    padding: 32px 24px;
+  }
+
+  .manage-btn,
+  .cancel-btn {
+    width: 100%;
+    margin: 8px 0 0 0;
+  }
+}

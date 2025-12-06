@@ -14,6 +14,7 @@
  */
 
 import React, { useState } from "react";
+import { ArrowRightLeft } from "lucide-react";
 
 import { exportToCSV, exportToPDF } from "../../utils/Export";
 import { useAuth } from "../../contexts/AuthContext";
@@ -97,6 +98,13 @@ const TransactionTable = () => {
 
   return (
     <div className="transactions-container">
+      <div className="transactions-header">
+        <h2 className="transactions-title">
+          <ArrowRightLeft size={24} />
+          Manage Transactions
+        </h2>
+      </div>
+
       <FilterBar
         filterType={filterType}
         setFilterType={(val) => handleFilterChange(setFilterType)(val)}

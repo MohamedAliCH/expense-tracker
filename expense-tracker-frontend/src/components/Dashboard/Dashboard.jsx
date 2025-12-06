@@ -4,7 +4,7 @@ import SummaryCards from "./SummaryCards";
 import ChartSection from "./ChartSection";
 import CategorySpendingList from "./CategorySpendingList";
 import EmptyState from "../Common/EmptyState";
-import { Download } from "lucide-react";
+import { Download, LayoutDashboard } from "lucide-react";
 import { exportAnalyticsToPDF } from "../../utils/Export";
 import "./Dashboard.css";
 
@@ -35,7 +35,10 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h2 className="dashboard-title">Dashboard Overview</h2>
+        <h2 className="dashboard-title">
+          <LayoutDashboard size={24} />
+          Dashboard Overview
+        </h2>
         <button onClick={handleExportPDF} className="export-btn">
           <Download size={16} />
           Export Report

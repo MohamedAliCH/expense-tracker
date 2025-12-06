@@ -5,6 +5,22 @@
   gap: 24px;
 }
 
+/* Header */
+.transactions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.transactions-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 /* Filter Section */
 .filter-section {
   background: rgba(255, 255, 255, 0.1);
@@ -139,11 +155,11 @@
 }
 
 .export-btn.csv {
-  background: #3b82f6;
+  background: #10b981;
 }
 
 .export-btn.csv:hover {
-  background: #2563eb;
+  background: #059669;
 }
 
 .export-btn.pdf {

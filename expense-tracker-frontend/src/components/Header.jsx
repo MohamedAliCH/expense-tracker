@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { DollarSign, RefreshCw, PlusCircle, User, LogOut } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useApp } from "../contexts/AppContext";
+import { useNavigate } from "react-router-dom";
+import { Crown } from "lucide-react";
+import PremiumBadge from "./Premium/PremiumBadge";
 import "./Header.css";
 
 const Header = ({ onAddTransaction }) => {
@@ -9,6 +12,7 @@ const Header = ({ onAddTransaction }) => {
   const { refreshData } = useApp();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const navigate = useNavigate();
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -44,6 +48,22 @@ const Header = ({ onAddTransaction }) => {
           <PlusCircle size={16} />
           Add Transaction
         </button>
+
+        {/* Premium Button or Badge */}
+        {user?.is_premium ? (
+          <button
+            onClick={() => navigate("/upgrade")}
+            className="premium-badge-btn"
+            title="Manage Subscription"
+          >
+            <PremiumBadge />
+          </button>
+        ) : (
+          <button onClick={() => navigate("/upgrade")} className="upgrade-btn">
+            <Crown size={16} />
+            Upgrade
+          </button>
+        )}
 
         {/* User Menu */}
         <div className="user-menu-container">

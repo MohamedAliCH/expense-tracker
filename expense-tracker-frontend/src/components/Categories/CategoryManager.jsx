@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Tags } from "lucide-react";
 import { useApp } from "../../contexts/AppContext";
 import { useToast } from "../../contexts/ToastContext";
 import CategoryItem from "./CategoryItem";
@@ -79,7 +79,10 @@ const CategoryManager = () => {
   return (
     <div className="category-manager">
       <div className="category-header">
-        <h2 className="category-title">Manage Categories</h2>
+        <h2 className="category-title">
+          <Tags size={24} />
+          Manage Categories
+        </h2>
         <button
           onClick={() => {
             setEditingCategory(null);

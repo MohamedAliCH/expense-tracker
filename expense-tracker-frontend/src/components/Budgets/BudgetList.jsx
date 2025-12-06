@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, PiggyBank } from "lucide-react";
 import { useApp } from "../../contexts/AppContext";
 import { useToast } from "../../contexts/ToastContext";
 import BudgetCard from "./BudgetCard";
@@ -82,7 +82,10 @@ const BudgetList = () => {
   return (
     <div className="budgets-container">
       <div className="budgets-header">
-        <h2 className="budgets-title">Manage Budgets</h2>
+        <h2 className="budgets-title">
+          <PiggyBank size={24} />
+          Manage Budgets
+        </h2>
         <button
           onClick={() => {
             setEditingBudget(null);

@@ -14,7 +14,7 @@ const CategoryItem = ({ category, onEdit, onDelete }) => {
         </div>
         <div className="category-item-info">
           <span className="category-item-name">{category.name}</span>
-          {category.is_system && (
+          {Boolean(category.is_system) && (
             <span className="category-item-system-badge">🔒 System</span>
           )}
         </div>

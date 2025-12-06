@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Wallet } from "lucide-react";
 import { useApp } from "../../contexts/AppContext";
 import { useToast } from "../../contexts/ToastContext";
 import AccountCard from "./AccountCard";
@@ -52,6 +52,7 @@ const AccountList = () => {
           name: formData.name,
           balance: parseFloat(formData.balance),
           type: formData.type,
+          currency: "EUR", // Defaulting as specific requirement wasn't set, but standardizing
         };
         await addAccount(accountData);
         showToast("Account created successfully!", "success");
@@ -103,7 +104,10 @@ const AccountList = () => {
   return (
     <div className="accounts-container">
       <div className="accounts-header">
-        <h2 className="accounts-title">Manage Accounts</h2>
+        <h2 className="accounts-title">
+          <Wallet size={24} />
+          Manage Accounts
+        </h2>
         <button
           onClick={() => {
             setEditingAccount(null);

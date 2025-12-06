@@ -22,6 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'stripe_customer_id',
+        'is_premium',
+        'premium_expires_at',
     ];
 
     /**
@@ -32,6 +35,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+    
     ];
 
     /**
@@ -44,6 +48,50 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_premium' => 'boolean',
+            'premium_expires_at' => 'datetime',
         ];
     }
+
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class)->where('status', 'active');
+    }
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+// helper methods:
+    public function isPremium(): bool
+    {
+        if ($this->is_premium && $this->premium_expires_at) {
+            return $this->premium_expires_at->isFuture();
+        }   
+        return $this->is_premium;
+    }
+
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->subscription !== null;
+    }
+
+    
+    public function getLimits(): array
+    {
+        if ($this->isPremium()) {
+            return [
+                'max_budgets' => PHP_INT_MAX,
+                'max_accounts' => PHP_INT_MAX,
+                'max_categories' => PHP_INT_MAX,
+            ];
+        }
+        return config('stripe.free_limits');
+    }
+
 }
