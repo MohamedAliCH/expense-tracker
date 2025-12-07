@@ -8,15 +8,17 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('budgets', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('amount', 15, 2);
-            $table->enum('period', ['weekly', 'monthly', 'yearly']);
-            $table->date('start_date');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('budgets')) {
+            Schema::create('budgets', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('category_id')->constrained()->onDelete('cascade');
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->decimal('amount', 15, 2);
+                $table->enum('period', ['weekly', 'monthly', 'yearly']);
+                $table->date('start_date');
+                $table->timestamps();
+            });
+        }
     }
 
     public function down()
