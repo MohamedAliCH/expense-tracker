@@ -16,6 +16,8 @@ import TransactionModal from "./components/Transactions/TransactionModal";
 import CategoryManager from "./components/Categories/CategoryManager";
 import UpgradePage from "./components/Premium/UpgradePage";
 import PaymentList from "./components/Payments/PaymentList";
+import SubscriptionSuccess from "./components/Premium/SubscriptionSuccess";
+import SubscriptionCanceled from "./components/Premium/SubscriptionCanceled";
 
 // Layout for authenticated routes
 const PrivateLayout = () => {
@@ -104,6 +106,14 @@ function App() {
               <Route path="/categories" element={<CategoryManager />} />
               <Route path="/upgrade" element={<UpgradePage />} />
               <Route path="/payments" element={<PaymentList />} />
+              <Route
+                path="/subscription/success"
+                element={<SubscriptionSuccess />}
+              />
+              <Route
+                path="/subscription/canceled"
+                element={<SubscriptionCanceled />}
+              />
             </Route>
 
             {/* Catch all - redirect to dashboard */}
