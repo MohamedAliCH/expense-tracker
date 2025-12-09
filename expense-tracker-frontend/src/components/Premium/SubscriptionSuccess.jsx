@@ -2,17 +2,22 @@ import React, { useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import "./SubscriptionSuccess.css";
+import { useAuth } from "../../contexts/AuthContext";
 
 const SubscriptionSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const sessionId = searchParams.get("session_id");
 
   useEffect(() => {
+    // Refresh user data to get the new premium status
+    refreshUser();
+
     if (!sessionId) {
       setTimeout(() => navigate("/dashboard"), 3000);
     }
-  }, [sessionId, navigate]);
+  }, [sessionId, navigate, refreshUser]);
 
   return (
     <div className="success-container">
