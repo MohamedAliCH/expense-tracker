@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle, ArrowRight, Loader } from "lucide-react";
-import { CheckCircle, ArrowRight, Loader } from "lucide-react";
 import "./SubscriptionSuccess.css";
 import { useAuth } from "../../contexts/AuthContext";
 
