@@ -11,8 +11,11 @@ import "./PaymentList.css";
 
 import { useApp } from "../../contexts/AppContext";
 
+import { useToast } from "../../contexts/ToastContext";
+
 const PaymentList = () => {
   const { refreshData } = useApp();
+  const { showToast } = useToast();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(null);
@@ -29,6 +32,7 @@ const PaymentList = () => {
       setPayments(response.data || []);
     } catch (error) {
       console.error("Error fetching payments:", error);
+      showToast("Failed to load payments", "error");
     } finally {
       setLoading(false);
     }
@@ -43,10 +47,10 @@ const PaymentList = () => {
       await fetchPayments(true);
       // Refresh global app data (transactions list)
       await refreshData();
-      alert("Payment synced to transaction!");
+      showToast("Payment synced to transaction!", "success");
     } catch (error) {
       console.error("Error syncing payment:", error);
-      alert("Failed to sync payment");
+      showToast("Failed to sync payment", "error");
     } finally {
       setSyncing(null);
     }
