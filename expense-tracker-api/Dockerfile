@@ -35,12 +35,22 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-# Create startup script to handle dynamic PORT
+# Create startup script
 RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Configure Apache port\n\
 sed -i "s/Listen 80/Listen ${PORT:-80}/g" /etc/apache2/ports.conf\n\
 sed -i "s/:80/:${PORT:-80}/g" /etc/apache2/sites-available/*.conf\n\
-apache2-foreground' > /usr/local/bin/start-apache.sh \
-    && chmod +x /usr/local/bin/start-apache.sh
+\n\
+# Run Laravel setup\n\
+php artisan config:cache\n\
+php artisan route:cache\n\
+php artisan view:cache\n\
+php artisan migrate --force\n\
+\n\
+# Start Apache\n\
+apache2-foreground' > /usr/local/bin/start.sh \
+    && chmod +x /usr/local/bin/start.sh
 
-# Use the startup script
-CMD ["/usr/local/bin/start-apache.sh"]
+CMD ["/usr/local/bin/start.sh"]
