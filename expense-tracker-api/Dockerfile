@@ -35,6 +35,9 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
+# Enable .htaccess overrides
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
 # Create startup script
 RUN echo '#!/bin/bash\n\
 set -e\n\
@@ -43,10 +46,7 @@ set -e\n\
 sed -i "s/Listen 80/Listen ${PORT:-80}/g" /etc/apache2/ports.conf\n\
 sed -i "s/:80/:${PORT:-80}/g" /etc/apache2/sites-available/*.conf\n\
 \n\
-# Run Laravel setup (migrations optional - will retry on next deploy)\n\
-php artisan config:cache || true\n\
-php artisan route:cache || true\n\
-php artisan view:cache || true\n\
+# Run migrations\n\
 php artisan migrate --force || echo "Migrations failed - database may not be ready yet"\n\
 \n\
 # Start Apache\n\
