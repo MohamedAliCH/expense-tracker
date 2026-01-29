@@ -5,7 +5,7 @@ services:
   - type: web
     name: expense-tracker-api
     runtime: php
-    root: expense-tracker-api
+    rootDir: expense-tracker-api
     plan: free
     region: ohio # or your preferred region
 
