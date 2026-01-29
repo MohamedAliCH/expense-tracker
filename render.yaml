@@ -4,16 +4,12 @@ services:
   # ---------------------------------------------------
   - type: web
     name: expense-tracker-api
-    runtime: php
+    runtime: docker
     rootDir: expense-tracker-api
     plan: free
     region: ohio # or your preferred region
 
-    # Build Command: Install PHP deps and migrate DB
-    buildCommand: composer install --no-dev --optimize-autoloader && php artisan migrate --force
-
-    # Start Command: Using built-in server for simplicity on Render Native
-    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
+    # Docker runtime uses the Dockerfile for build/start instructions
 
     envVars:
       - key: APP_KEY
