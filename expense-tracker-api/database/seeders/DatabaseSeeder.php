@@ -15,14 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => bcrypt('password123'),
-        ]);
-
+        // Only seed default categories and accounts
+        // Users should register themselves
         $this->call([
             CategorySeeder::class,
             DefaultAccountsSeeder::class,

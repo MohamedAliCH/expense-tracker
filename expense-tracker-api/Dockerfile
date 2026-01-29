@@ -55,8 +55,9 @@ set -e\n\
 sed -i "s/Listen 80/Listen ${PORT:-80}/g" /etc/apache2/ports.conf\n\
 sed -i "s/*:80/*:${PORT:-80}/g" /etc/apache2/sites-available/*.conf\n\
 \n\
-# Run migrations\n\
+# Run migrations and seed database\n\
 php artisan migrate --force || echo "Migrations failed - database may not be ready yet"\n\
+php artisan db:seed --force || echo "Seeding failed"\n\
 \n\
 # Start Apache\n\
 apache2-foreground' > /usr/local/bin/start.sh \
