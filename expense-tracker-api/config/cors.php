@@ -6,6 +6,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
+        env('FRONTEND_URL', 'http://localhost:3000'),
         'https://daliii.me',
         'https://www.daliii.me',
         'https://expense-tracker-frontend-iyhk.onrender.com',
