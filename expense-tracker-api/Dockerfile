@@ -43,11 +43,11 @@ set -e\n\
 sed -i "s/Listen 80/Listen ${PORT:-80}/g" /etc/apache2/ports.conf\n\
 sed -i "s/:80/:${PORT:-80}/g" /etc/apache2/sites-available/*.conf\n\
 \n\
-# Run Laravel setup\n\
-php artisan config:cache\n\
-php artisan route:cache\n\
-php artisan view:cache\n\
-php artisan migrate --force\n\
+# Run Laravel setup (migrations optional - will retry on next deploy)\n\
+php artisan config:cache || true\n\
+php artisan route:cache || true\n\
+php artisan view:cache || true\n\
+php artisan migrate --force || echo "Migrations failed - database may not be ready yet"\n\
 \n\
 # Start Apache\n\
 apache2-foreground' > /usr/local/bin/start.sh \
