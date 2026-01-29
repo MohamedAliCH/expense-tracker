@@ -29,6 +29,20 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        // Create default accounts
+        $user->accounts()->createMany([
+            [
+                'name' => 'Cash',
+                'type' => 'wallet',
+                'balance' => 0,
+            ],
+            [
+                'name' => 'Bank Account',
+                'type' => 'bank',
+                'balance' => 0,
+            ]
+        ]);
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
