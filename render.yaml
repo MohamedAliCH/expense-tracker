@@ -7,7 +7,7 @@ services:
     runtime: docker
     rootDir: expense-tracker-api
     plan: free
-    region: ohio # or your preferred region
+    region: oregon # Must match the created database region
 
     # Docker runtime uses the Dockerfile for build/start instructions
 
