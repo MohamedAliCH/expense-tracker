@@ -20,6 +20,14 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
 
+Route::get('/seed-johndoe', function () {
+    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'JohnDoeSeeder', '--force' => true]);
+    return response()->json([
+        'message' => 'Successfully seeded John Doe transactions!',
+        'log' => \Illuminate\Support\Facades\Artisan::output()
+    ]);
+});
+
 Route::get('/health', function () {
     return response()->json([
         'status' => 'ok', 
