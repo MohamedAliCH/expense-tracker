@@ -38,10 +38,10 @@ class JohnDoeSeeder extends Seeder
 
         // 3. Get generic categories (from default categories seeder)
         // If not found, we create a few dummy ones
-        $foodCategory = Category::firstOrCreate(['name' => 'Food'], ['type' => 'expense', 'icon' => '🍔']);
-        $salaryCategory = Category::firstOrCreate(['name' => 'Salary'], ['type' => 'income', 'icon' => '💵']);
-        $transportCategory = Category::firstOrCreate(['name' => 'Transport'], ['type' => 'expense', 'icon' => '🚗']);
-        $billsCategory = Category::firstOrCreate(['name' => 'Bills'], ['type' => 'expense', 'icon' => '🧾']);
+        $foodCategory = Category::firstOrCreate(['name' => 'Food'], ['type' => 'expense', 'emoji' => '🍔', 'color' => '#FF5733', 'is_system' => true]);
+        $salaryCategory = Category::firstOrCreate(['name' => 'Salary'], ['type' => 'income', 'emoji' => '💵', 'color' => '#28A745', 'is_system' => true]);
+        $transportCategory = Category::firstOrCreate(['name' => 'Transport'], ['type' => 'expense', 'emoji' => '🚗', 'color' => '#007BFF', 'is_system' => true]);
+        $billsCategory = Category::firstOrCreate(['name' => 'Bills'], ['type' => 'expense', 'emoji' => '🧾', 'color' => '#FFC107', 'is_system' => true]);
 
         // 4. Create Transactions for logic over the last 60 days
         $transactions = [
