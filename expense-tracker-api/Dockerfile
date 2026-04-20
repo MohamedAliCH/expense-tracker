@@ -59,6 +59,9 @@ sed -i "s/*:80/*:${PORT:-80}/g" /etc/apache2/sites-available/*.conf\n\
 php artisan migrate --force || echo "Migrations failed - database may not be ready yet"\n\
 php artisan db:seed --force || echo "Seeding failed"\n\
 \n\
+# Fix storage permissions (logs might have been created as root just now)\n\
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache\n\
+\n\
 # Start Apache\n\
 apache2-foreground' > /usr/local/bin/start.sh \
     && chmod +x /usr/local/bin/start.sh
