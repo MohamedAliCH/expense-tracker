@@ -1,45 +1,48 @@
-# 💰 Expense Tracker
+# 💰 Full-Stack Expense Tracker
 
-A modern, full-stack expense tracking application built with **Laravel** and **React**. Manage your finances, track expenses and income, set budgets, and visualize your spending habits with beautiful charts.
+A modern, production-ready, full-stack expense tracking application built with **Laravel 12** and **React 19**. This application enables users to manage their personal finances, track recurring subscriptions, set tight budgets, and visualize their spending habits with interactive charts.
 
-![Expense Tracker Dashboard](https://via.placeholder.com/800x400?text=Expense+Tracker+Dashboard)
+## Key Features
 
-## ✨ Features
+- **📊 Interactive Dashboard**: Real-time overview of your financial health with animated charts (via Recharts).
+- **💸 Transaction Management**: Granular control over income and expense tracking.
+- **📦 Smart Categories**: Organize transactions with customizable categories equipped with emoji support.
+- **💰 Budgeting**: Set limits on your spending and monitor budget health dynamically.
+- **💳 Stripe Subscriptions**: Integrated Stripe payments for tracking premium subscriptions and payment histories, linked directly via Webhooks.
+- **📄 Export Functionality**: Generate and download financial reports in PDF and CSV formats.
+- **🔐 Secure Authentication**: Token-based API authentication utilizing Laravel Sanctum.
+- **🚀 One-Click Deployment**: Pre-configured `render.yaml` for seamless Infrastructure-as-Code deployment on Render.
 
-- **📊 Dashboard**: Real-time overview of your financial health with interactive charts.
-- **💸 Transaction Management**: Easily add, edit, and delete income and expense transactions.
-- **📦 Category Management**: Organize transactions with customizable categories featuring **Emoji Support** 🎨.
-- **💰 Budgeting**: Set monthly, weekly, or yearly budgets for specific categories to keep your spending in check.
-- **📈 Analytics**: Visual breakdown of your spending by category and time period.
-- **📄 Export**: Export your financial data to PDF and CSV formats.
-- **🔐 Authentication**: Secure user registration and login.
+---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Backend (API)
-
-- **Framework**: Laravel 10+
-- **Database**: MySQL
+- **Language**: PHP 8.3+, JavaScript (ES6+)
+- **Backend Framework**: Laravel 12.0
+- **Frontend Library**: React 19.2 (Create React App)
+- **Database**: PostgreSQL (Production) / SQLite or MySQL (Development)
 - **Authentication**: Laravel Sanctum
+- **Payments / Billing**: Stripe API
+- **Charts / UI**: Recharts, Framer Motion, Lucide React
+- **Deployment**: Render (Docker APIs + PostgreSQL Database)
 
-### Frontend
+---
 
-- **Framework**: React.js
-- **Styling**: CSS Modules / Styled Components
-- **Icons**: Lucide React
-- **Charts**: Recharts
-- **HTTP Client**: Axios
+## Prerequisites
 
-## 🚀 Getting Started
+Before setting up the project locally, ensure your system has the following installed:
 
-Follow these steps to set up the project locally.
+- **PHP** >= 8.3
+- **Composer** (PHP dependency manager)
+- **Node.js** >= 18.x and **npm**
+- **PostgreSQL** (Recommended) or MySQL / SQLite
+- **Stripe Account** (Optional, required for executing payment/subscription workflows locally)
 
-### Prerequisites
+---
 
-- PHP >= 8.1
-- Composer
-- Node.js & npm
-- MySQL
+## Getting Started
+
+Follow this step-by-step guide to get your local development environment up and running.
 
 ### 1. Clone the Repository
 
@@ -48,81 +51,152 @@ git clone https://github.com/MohamedAliCH/expense-tracker.git
 cd expense-tracker
 ```
 
-### 2. Backend Setup (Laravel)
+### 2. Backend Setup (Laravel API)
 
-Navigate to the backend directory:
+Navigate to the API folder and install dependencies:
 
 ```bash
 cd expense-tracker-api
-```
-
-Install PHP dependencies:
-
-```bash
 composer install
 ```
 
-Set up environment variables:
+Configure your environment:
 
 ```bash
 cp .env.example .env
-```
-
-_Configure your database credentials in the `.env` file._
-
-Generate application key:
-
-```bash
 php artisan key:generate
 ```
 
-Run database migrations and seeders (adds default categories with emojis):
+Update the `.env` file with your local database credentials. For example (PostgreSQL):
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=expense_tracker
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+
+FRONTEND_URL=http://localhost:3000
+SANCTUM_STATEFUL_DOMAINS=localhost:3000
+```
+
+Run database migrations to build your schema, and seed default categories:
 
 ```bash
 php artisan migrate --seed
 ```
 
-Start the backend server:
+Start the local backend development server:
 
 ```bash
 php artisan serve
 ```
-
-_The API will run at `http://localhost:8000`_
+*The API will be accessible at `http://localhost:8000`*
 
 ### 3. Frontend Setup (React)
 
-Open a new terminal and navigate to the frontend directory:
+Open a **new terminal tab**, and navigate to the frontend directory:
 
 ```bash
 cd expense-tracker-frontend
-```
-
-Install JavaScript dependencies:
-
-```bash
 npm install
 ```
 
-Start the frontend development server:
+Configure the React environment:
+Create an `.env` file in the `expense-tracker-frontend` directory and define the API connection:
+
+```env
+REACT_APP_API_URL=http://localhost:8000/api
+```
+
+Start the React development server:
 
 ```bash
 npm start
 ```
+*The application UI will run at `http://localhost:3000`*
 
-_The application will open at `http://localhost:3000`_
+---
 
-## 📝 Usage
+## Architecture Overview
 
-1.  Register a new account.
-2.  Go to **Categories** to customize your expense and income categories (add emojis!).
-3.  Set up **Budgets** for your categories.
-4.  Start adding **Transactions** on the Dashboard or Transactions page.
+### Structure
 
-## 🤝 Contributing
+```
+├── expense-tracker-api/          # Laravel REST API Application
+│   ├── app/                      
+│   │   ├── Http/Controllers/Api/ # Endpoint controllers (CRUD, Stripe, Auth)
+│   │   └── Models/               # Eloquent ORMs (User, Transaction, Category...)
+│   ├── config/                   # Laravel configurations (CORS, DB, etc.)
+│   ├── database/                 # Migrations & Seeders
+│   ├── routes/                   # Contains api.php
+│   └── Dockerfile                # Docker setup for Render Web Service
+│
+├── expense-tracker-frontend/     # React SPA Client
+│   ├── src/
+│   │   ├── components/           # Reusable UI elements (Modals, Buttons)
+│   │   ├── contexts/             # React Contexts (AuthContext, ThemeContext)
+│   │   ├── services/             # Axios API communication logic
+│   │   └── utils/                # Utility formatting functions
+│   └── package.json
+│
+└── render.yaml                   # Render Blueprint Infrastructure Config
+```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Data Flow
 
-## 📄 License
+```
+User Action → React Component → Axios Hook → Laravel API Controller → PostgreSQL Db
+```
 
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## Deployment Configuration (Render)
+
+This project natively supports Infrastructure-as-Code via **Render**. The project is split into two deployment units: a Dockerized Laravel API + Managed Database, and a Static Frontend.
+
+The included `render.yaml` creates two services in the `ohio` region:
+1. **Managed PostgreSQL Database** 
+2. **Docker Web Service** for the `expense-tracker-api`
+
+### Deploying the Backend (Blueprint)
+
+1. Sign up for [Render.com](https://render.com).
+2. Go to your dashboard and click **New → Blueprint**.
+3. Link this GitHub repository.
+4. Render will read the `render.yaml` file, automatically provision the PostgreSQL database, and build the Docker image for the Laravel API. 
+
+*Render Free Tier Note: You can populate dummy data without using the paid SSH shell by visiting `/api/seed-johndoe` on your live API URL (e.g. `https://your-api.onrender.com/api/seed-johndoe`) which automatically runs the built-in `JohnDoeSeeder` simulator.*
+
+### Deploying the Frontend (Static Site)
+
+1. In Render, click **New → Static Site**.
+2. Connect this repository.
+3. Configure the settings:
+   - Root Directory: `expense-tracker-frontend`
+   - Build Command: `npm install && npm run build`
+   - Publish Directory: `expense-tracker-frontend/build`
+4. Expand **Advanced**, and add environment variables:
+   - `REACT_APP_API_URL` = `https://your-backend-render-url.onrender.com/api`
+5. Click **Create Static Site**.
+
+---
+
+## Testing
+
+For backend testing (PHPUnit/Pest are enabled):
+
+```bash
+cd expense-tracker-api
+php artisan test
+```
+
+For frontend suite:
+```bash
+cd expense-tracker-frontend
+npm test
+```
+
+## License
+
+This software is open source and available under the [MIT License](LICENSE).
