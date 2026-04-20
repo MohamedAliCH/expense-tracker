@@ -7,7 +7,7 @@ services:
     runtime: docker
     rootDir: expense-tracker-api
     plan: free
-    region: oregon # Must match the created database region
+    region: ohio
 
     # Docker runtime uses the Dockerfile for build/start instructions
 
@@ -67,3 +67,4 @@ databases:
     databaseName: expense_tracker
     user: expense_user
     plan: free # Expire after 90 days on free tier
+    region: ohio
