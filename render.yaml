@@ -17,7 +17,7 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_URL
-        value: https://expense-tracker-api.onrender.com
+        value: https://expense-tracker-api-bdg7.onrender.com
 
       # Frontend Connection (CORS & Sanctum)
       - key: FRONTEND_URL
