@@ -69,7 +69,7 @@ php artisan migrate --seed
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-**Demo Credentials** (seeded via `JohnDoeSeeder`):
+**Demo Credentials** (seeded via `DemoUserSeeder`):
 - **Email**: `john@example.com`
 - **Password**: `password123`
 
@@ -109,7 +109,7 @@ The application will be available at `http://localhost:3000`.
 │   │   └── Services/                     # AccountLedgerService (atomic balance & transfer invariants)
 │   ├── database/
 │   │   ├── migrations/                   # Full schema including accounts, recurring, and receipts
-│   │   └── seeders/                      # CategorySeeder & JohnDoeSeeder
+│   │   └── seeders/                      # CategorySeeder & DemoUserSeeder
 │   ├── routes/api.php                    # Sanctum-protected API routes
 │   └── tests/Feature/                    # Automated feature test suites (Ledger, Profile, Recurring)
 │

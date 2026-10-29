@@ -15,11 +15,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed default categories, default accounts, and the demo John Doe user
         $this->call([
             CategorySeeder::class,
             DefaultAccountsSeeder::class,
-            JohnDoeSeeder::class,
         ]);
+
+        // Seed the full Oceanic demo user if not already initialized with 6-month data
+        if (!User::where('email', 'john@example.com')->exists()) {
+            $this->call([
+                DemoUserSeeder::class,
+            ]);
+        }
     }
 }

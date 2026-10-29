@@ -142,6 +142,7 @@ class DemoUserSeeder extends Seeder
             }
 
             foreach ($rows as $r) {
+                $isRecurring = ($monthsAgo === 0 && in_array($r['cat'], ['rent', 'utilities', 'entertainment'], true));
                 $tx = Transaction::create([
                     'user_id' => $user->id,
                     'account_id' => $r['acc']->id,
@@ -150,6 +151,9 @@ class DemoUserSeeder extends Seeder
                     'type' => $r['type'],
                     'date' => $r['date'],
                     'description' => $r['desc'],
+                    'is_recurring' => $isRecurring,
+                    'recurring_frequency' => $isRecurring ? 'monthly' : null,
+                    'next_occurrence' => $isRecurring ? Carbon::parse($r['date'])->addMonth()->format('Y-m-d') : null,
                 ]);
                 AccountLedgerService::applyTransaction($tx);
             }

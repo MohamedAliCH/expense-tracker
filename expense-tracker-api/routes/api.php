@@ -28,18 +28,18 @@ Route::get('/health', function () {
     ]);
 });
 
-// SEED DEMO ACCOUNT ROUTE (Accessible in all environments with safe key or basic auth)
+// SEED DEMO ACCOUNT ROUTE (Resets/initializes the rich 6-month Oceanic demo account)
 Route::post('/seed-demo', function () {
-    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'JohnDoeSeeder', '--force' => true]);
+    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DemoUserSeeder', '--force' => true]);
     return response()->json([
         'status' => 'success',
-        'message' => 'John Doe demo account has been initialized.',
+        'message' => 'John Doe 6-month Oceanic demo account has been initialized.',
         'credentials' => [
             'email' => 'john@example.com',
             'password' => 'password123',
         ],
     ]);
-});
+})->middleware('throttle:5,1');
 
 // PROTECTED ROUTES (Authentication required)
 
