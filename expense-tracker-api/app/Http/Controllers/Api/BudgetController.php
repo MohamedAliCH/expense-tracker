@@ -5,38 +5,71 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Budget;
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class BudgetController extends Controller
 {
     /**
-     * Get all budgets with spending data
+     * Get all budgets with spending data respecting both period window and start_date
      */
     public function index(Request $request)
     {
         try {
-            $budgets = Budget::where('user_id', $request->user()->id)
+            $userId = $request->user()->id;
+
+            $budgets = Budget::where('user_id', $userId)
                 ->with('category')
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            // Calculate spent amount
-            $budgets->transform(function ($budget) {
-                // Determine date range for "current period" specific to this budget
-                // For simplicity assuming monthly budgets track current month
-                // You can expand this logic based on $budget->period
-                
-                $spent = Transaction::where('user_id', $budget->user_id)
+            $earliestWindow = min(
+                now()->startOfYear()->toDateString(),
+                now()->startOfWeek()->toDateString()
+            );
+
+            $expenses = Transaction::where('user_id', $userId)
+                ->where('type', 'expense')
+                ->where('date', '>=', $earliestWindow)
+                ->get(['category_id', 'date', 'amount']);
+
+            $weekStart = now()->startOfWeek()->toDateString();
+            $weekEnd = now()->endOfWeek()->toDateString();
+            $monthStart = now()->startOfMonth()->toDateString();
+            $monthEnd = now()->endOfMonth()->toDateString();
+            $yearStart = now()->startOfYear()->toDateString();
+            $yearEnd = now()->endOfYear()->toDateString();
+
+            $budgets->transform(function ($budget) use ($expenses, $weekStart, $weekEnd, $monthStart, $monthEnd, $yearStart, $yearEnd) {
+                if ($budget->period === 'yearly') {
+                    $periodStart = $yearStart;
+                    $periodEnd = $yearEnd;
+                } elseif ($budget->period === 'weekly') {
+                    $periodStart = $weekStart;
+                    $periodEnd = $weekEnd;
+                } else {
+                    $periodStart = $monthStart;
+                    $periodEnd = $monthEnd;
+                }
+
+                $budgetStart = $budget->start_date
+                    ? Carbon::parse($budget->start_date)->toDateString()
+                    : $periodStart;
+
+                $effectiveStart = max($periodStart, $budgetStart);
+
+                $spent = $expenses
                     ->where('category_id', $budget->category_id)
-                    ->where('type', 'expense')
-                    ->whereYear('date', now()->year)
-                    ->whereMonth('date', now()->month)
+                    ->filter(function ($tx) use ($effectiveStart, $periodEnd) {
+                        $txDate = Carbon::parse($tx->date)->toDateString();
+                        return $txDate >= $effectiveStart && $txDate <= $periodEnd;
+                    })
                     ->sum('amount');
-                
-                $budget->spent = (float) $spent;
-                
-                // Add flattened category fields for frontend compatibility
+
+                $budget->spent = round((float) $spent, 2);
+
                 if ($budget->category) {
                     $budget->category_name = $budget->category->name;
                     $budget->category_color = $budget->category->color;
@@ -57,29 +90,41 @@ class BudgetController extends Controller
      */
     public function store(Request $request)
     {
+        $limits = $request->user()->getLimits();
+        if ($request->user()->budgets()->count() >= $limits['max_budgets']) {
+            return response()->json([
+                'error' => "You have reached your limit of {$limits['max_budgets']} budgets. Upgrade to Pro for unlimited budgets."
+            ], 403);
+        }
+
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => [
+                'required',
+                Rule::exists('categories', 'id')->where(function ($query) use ($request) {
+                    $query->where('user_id', $request->user()->id)->orWhereNull('user_id');
+                })
+            ],
             'amount' => 'required|numeric|min:0.01',
             'period' => 'required|in:weekly,monthly,yearly',
             'start_date' => 'required|date'
         ]);
 
         $validated['user_id'] = $request->user()->id;
-        
+
         // Check for existing budget
         $exists = Budget::where('user_id', $validated['user_id'])
             ->where('category_id', $validated['category_id'])
             ->exists();
-            
+
         if ($exists) {
             return response()->json(['error' => 'Budget already exists for this category'], 400);
         }
 
         $budget = Budget::create($validated);
-        
+
         // Load category for response
         $budget->load('category');
-        
+
         // Add flattened fields for frontend
         if ($budget->category) {
             $budget->category_name = $budget->category->name;
@@ -94,7 +139,7 @@ class BudgetController extends Controller
     /**
      * Show a single budget
      */
-    public function show(Request $request, $id)
+    public function show(Request $request, string $id)
     {
         $budget = Budget::where('user_id', $request->user()->id)
             ->where('id', $id)
@@ -113,7 +158,7 @@ class BudgetController extends Controller
     /**
      * Update a budget
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
         $budget = Budget::where('user_id', $request->user()->id)
             ->where('id', $id)
@@ -126,10 +171,10 @@ class BudgetController extends Controller
         ]);
 
         $budget->update($validated);
-        
+
         // Load category for response
         $budget->load('category');
-        
+
         if ($budget->category) {
             $budget->category_name = $budget->category->name;
             $budget->category_color = $budget->category->color;
@@ -142,7 +187,7 @@ class BudgetController extends Controller
     /**
      * Delete a budget
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, string $id)
     {
         $budget = Budget::where('user_id', $request->user()->id)
             ->where('id', $id)

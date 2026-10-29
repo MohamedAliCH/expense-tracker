@@ -12,7 +12,10 @@ import {
   fetchAccounts,
   fetchTransactions,
   fetchBudgets,
+  fetchAnalytics,
+  fetchUserLimits,
   createTransaction,
+  updateTransaction as apiUpdateTransaction,
   deleteTransaction as apiDeleteTransaction,
   createCategory,
   updateCategory,
@@ -23,34 +26,76 @@ import {
   createAccount,
   updateAccount,
   deleteAccount as apiDeleteAccount,
+  transferFunds,
+  importTransactions as apiImportTransactions,
+  processRecurringTransactions as apiProcessRecurring,
 } from "../utils/api";
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [planLimits, setPlanLimits] = useState({
+    is_premium: false,
+    limits: {
+      max_budgets: 3,
+      max_accounts: 2,
+      max_categories: 10,
+    },
+  });
+
+  // Analytics states
+  const [financialSummary, setFinancialSummary] = useState({
+    totalIncome: 0,
+    totalExpense: 0,
+    balance: 0,
+    incomeCount: 0,
+    expenseCount: 0,
+  });
+  const [categoryBreakdown, setCategoryBreakdown] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
 
   // Filters
+  const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [filterAccount, setFilterAccount] = useState("all");
   const [filterMonth, setFilterMonth] = useState("all");
   const [filterMinAmount, setFilterMinAmount] = useState("");
   const [filterMaxAmount, setFilterMaxAmount] = useState("");
-  const [filterFavorites, setFilterFavorites] = useState("all"); // 'all', 'true', 'false'
-  const [sortBy, setSortBy] = useState("date"); // 'date', 'amount', 'description', 'type'
-  const [sortOrder, setSortOrder] = useState("desc"); // 'asc', 'desc'
+  const [filterFavorites, setFilterFavorites] = useState("all");
+  const [datePreset, setDatePreset] = useState("all"); // 'all', 'this_month', 'last_30', 'this_quarter', 'ytd', 'custom'
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [sortBy, setSortBy] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
 
-  // Fetch Data - Load only essential data first
+  // Currency preference
+  const [currency, setCurrencyState] = useState(() => {
+    try {
+      return localStorage.getItem("expense_tracker_currency") || "$";
+    } catch {
+      return "$";
+    }
+  });
+
+  const setCurrency = (symbol) => {
+    setCurrencyState(symbol);
+    try {
+      localStorage.setItem("expense_tracker_currency", symbol);
+    } catch {}
+  };
+
+  // Fetch Data - Load essential data first, then ledger & analytics
   const loadData = useCallback(async () => {
     if (!isAuthenticated) return;
 
     setLoading(true);
     try {
-      // Load only categories and accounts first (needed for forms)
       const [categoriesData, accountsData] = await Promise.all([
         fetchCategories(),
         fetchAccounts(),
@@ -60,11 +105,47 @@ export const AppProvider = ({ children }) => {
       setAccounts(accountsData || []);
       setLoading(false);
 
-      // Load transactions and budgets in background (not blocking)
-      Promise.all([fetchTransactions(), fetchBudgets()])
-        .then(([transactionsData, budgetsData]) => {
+      Promise.all([
+        fetchTransactions({ per_page: 500 }),
+        fetchBudgets(),
+        fetchAnalytics(),
+        fetchUserLimits().catch(() => null),
+      ])
+        .then(([transactionsData, budgetsData, analyticsData, limitsData]) => {
           setTransactions(transactionsData || []);
           setBudgets(budgetsData || []);
+
+          if (limitsData) {
+            setPlanLimits(limitsData);
+          } else if (user) {
+            setPlanLimits({
+              is_premium: !!user.is_premium,
+              limits: {
+                max_budgets: user.is_premium ? null : 3,
+                max_accounts: user.is_premium ? null : 2,
+                max_categories: user.is_premium ? null : 10,
+              },
+            });
+          }
+
+          if (analyticsData) {
+            setFinancialSummary({
+              totalIncome: analyticsData.summary.income || 0,
+              totalExpense: analyticsData.summary.expense || 0,
+              balance: analyticsData.summary.balance || 0,
+              incomeCount: analyticsData.summary.income_count || 0,
+              expenseCount: analyticsData.summary.expense_count || 0,
+            });
+
+            const formattedCategoryBreakdown = (
+              analyticsData.category_breakdown || []
+            ).map((cat) => ({
+              ...cat,
+              value: parseFloat(cat.total),
+            }));
+            setCategoryBreakdown(formattedCategoryBreakdown);
+            setMonthlyData(analyticsData.monthly_trend || []);
+          }
         })
         .catch((error) => {
           console.error("Error fetching secondary data:", error);
@@ -73,7 +154,7 @@ export const AppProvider = ({ children }) => {
       console.error("Error fetching data:", error);
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -81,21 +162,74 @@ export const AppProvider = ({ children }) => {
     }
   }, [isAuthenticated, loadData]);
 
-  // --- Computed Values ---
+  // Compute effective date bounds from preset
+  const effectiveDateBounds = useMemo(() => {
+    const now = new Date();
+    const todayStr = now.toISOString().split("T")[0];
+
+    if (datePreset === "this_month") {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+      return { start, end: todayStr };
+    }
+    if (datePreset === "last_30") {
+      const past = new Date();
+      past.setDate(past.getDate() - 30);
+      return { start: past.toISOString().split("T")[0], end: todayStr };
+    }
+    if (datePreset === "this_quarter") {
+      const qMonth = Math.floor(now.getMonth() / 3) * 3;
+      const start = new Date(now.getFullYear(), qMonth, 1).toISOString().split("T")[0];
+      return { start, end: todayStr };
+    }
+    if (datePreset === "ytd") {
+      const start = new Date(now.getFullYear(), 0, 1).toISOString().split("T")[0];
+      return { start, end: todayStr };
+    }
+    if (datePreset === "custom") {
+      return { start: startDate || null, end: endDate || null };
+    }
+    return { start: null, end: null };
+  }, [datePreset, startDate, endDate]);
 
   // Filtered transactions
   const filteredTransactions = useMemo(() => {
-    // Safety check: ensure transactions is an array
     if (!Array.isArray(transactions)) {
       return [];
     }
 
+    const searchLower = searchQuery.trim().toLowerCase();
+
     let filtered = transactions.filter((t) => {
       if (filterType !== "all" && t.type !== filterType) return false;
+      if (filterAccount !== "all" && String(t.account_id) !== String(filterAccount)) return false;
+
+      // Search query across description, notes, category
+      if (searchLower) {
+        const desc = (t.description || "").toLowerCase();
+        const notes = (t.notes || "").toLowerCase();
+        const catName = (t.category?.name || "").toLowerCase();
+        const accName = (t.account?.name || "").toLowerCase();
+        if (
+          !desc.includes(searchLower) &&
+          !notes.includes(searchLower) &&
+          !catName.includes(searchLower) &&
+          !accName.includes(searchLower)
+        ) {
+          return false;
+        }
+      }
+
+      // Date preset bounds
+      const txDate = String(t.date).split("T")[0];
+      if (effectiveDateBounds.start && txDate < effectiveDateBounds.start) return false;
+      if (effectiveDateBounds.end && txDate > effectiveDateBounds.end) return false;
+
+      // Legacy Month filter
       if (filterMonth !== "all") {
         const tMonth = new Date(t.date).getMonth();
         if (tMonth !== parseInt(filterMonth)) return false;
       }
+
       // Amount range filter
       if (
         filterMinAmount !== "" &&
@@ -107,6 +241,7 @@ export const AppProvider = ({ children }) => {
         parseFloat(t.amount) > parseFloat(filterMaxAmount)
       )
         return false;
+
       // Favorites filter
       if (filterFavorites !== "all") {
         const isFav =
@@ -119,7 +254,6 @@ export const AppProvider = ({ children }) => {
       return true;
     });
 
-    // Apply sorting
     filtered.sort((a, b) => {
       let aVal, bVal;
 
@@ -129,8 +263,8 @@ export const AppProvider = ({ children }) => {
           bVal = parseFloat(b.amount);
           break;
         case "description":
-          aVal = a.description.toLowerCase();
-          bVal = b.description.toLowerCase();
+          aVal = (a.description || "").toLowerCase();
+          bVal = (b.description || "").toLowerCase();
           break;
         case "type":
           aVal = a.type;
@@ -151,8 +285,11 @@ export const AppProvider = ({ children }) => {
     return filtered;
   }, [
     transactions,
+    searchQuery,
     filterType,
+    filterAccount,
     filterMonth,
+    effectiveDateBounds,
     filterMinAmount,
     filterMaxAmount,
     filterFavorites,
@@ -160,119 +297,48 @@ export const AppProvider = ({ children }) => {
     sortOrder,
   ]);
 
-  // Financial Summary
-  const financialSummary = useMemo(() => {
-    const income = filteredTransactions
-      .filter((t) => t.type === "income")
-      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-
-    const expense = filteredTransactions
-      .filter((t) => t.type === "expense")
-      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-
-    return {
-      totalIncome: income,
-      totalExpense: expense,
-      balance: income - expense,
-      incomeCount: filteredTransactions.filter((t) => t.type === "income")
-        .length,
-      expenseCount: filteredTransactions.filter((t) => t.type === "expense")
-        .length,
-    };
-  }, [filteredTransactions]);
-
-  // Category Breakdown
-  const categoryBreakdown = useMemo(() => {
-    return categories
-      .filter((c) => c.type === "expense")
-      .map((cat) => {
-        const total = filteredTransactions
-          .filter(
-            (t) =>
-              t.type === "expense" &&
-              (parseInt(t.category_id) === cat.id || t.category?.id === cat.id)
-          )
-          .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        return { ...cat, total, value: total };
-      })
-      .filter((c) => c.total > 0)
-      .sort((a, b) => b.total - a.total);
-  }, [categories, filteredTransactions]);
-
-  // Monthly Data (Last 6 Months)
-  const monthlyData = useMemo(() => {
-    return Array.from({ length: 6 }, (_, i) => {
-      const date = new Date();
-      date.setMonth(date.getMonth() - (5 - i));
-      const monthLabel = date.toLocaleString("default", { month: "short" });
-
-      // Safety check: ensure transactions is an array
-      if (!Array.isArray(transactions)) {
-        return { month: monthLabel, income: 0, expense: 0 };
-      }
-
-      const monthTransactions = transactions.filter((t) => {
-        const tDate = new Date(t.date);
-        return (
-          tDate.getMonth() === date.getMonth() &&
-          tDate.getFullYear() === date.getFullYear()
-        );
-      });
-
-      const income = monthTransactions
-        .filter((t) => t.type === "income")
-        .reduce((s, t) => s + parseFloat(t.amount), 0);
-      const expense = monthTransactions
-        .filter((t) => t.type === "expense")
-        .reduce((s, t) => s + parseFloat(t.amount), 0);
-
-      return { month: monthLabel, income, expense };
-    });
-  }, [transactions]);
-
-  // Budget Analysis
+  // Budget Analysis uses backend 'spent' calculation
   const budgetAnalysis = useMemo(() => {
     if (!Array.isArray(budgets)) return [];
     return budgets.map((budget) => {
-      const category = categories.find(
-        (c) => c.id === parseInt(budget.category_id)
-      );
-
-      // Safety check: ensure transactions is an array
-      const spent = Array.isArray(transactions)
-        ? transactions
-            .filter(
-              (t) =>
-                t.type === "expense" &&
-                parseInt(t.category_id) === parseInt(budget.category_id)
-            )
-            .reduce((sum, t) => sum + parseFloat(t.amount), 0)
-        : 0;
-
+      const spent = parseFloat(budget.spent) || 0;
+      const amount = parseFloat(budget.amount) || 0;
       return {
         ...budget,
-        category: category?.name || "Unknown",
-        color: category?.color || "#6b7280",
-        emoji: category?.emoji,
+        category: budget.category_name || "Unknown",
+        color: budget.category_color || "#6b7280",
+        emoji: budget.category_emoji,
         spent,
-        percentage: (spent / budget.amount) * 100,
-        remaining: Math.max(budget.amount - spent, 0),
+        percentage: amount > 0 ? (spent / amount) * 100 : 0,
+        remaining: Math.max(amount - spent, 0),
       };
     });
-  }, [budgets, categories, transactions]);
+  }, [budgets]);
 
-  // --- Actions ---
-
-  // Transactions
+  // Actions
   const addTransaction = async (transactionData) => {
     try {
       const response = await createTransaction(transactionData);
       if (response) {
-        await loadData(); // Reload to get fresh data
+        await loadData();
         return true;
       }
     } catch (error) {
       console.error("Failed to add transaction", error);
+      throw error;
+    }
+    return false;
+  };
+
+  const editTransaction = async (id, transactionData) => {
+    try {
+      const response = await apiUpdateTransaction(id, transactionData);
+      if (response) {
+        await loadData();
+        return true;
+      }
+    } catch (error) {
+      console.error("Failed to update transaction", error);
       throw error;
     }
     return false;
@@ -288,7 +354,16 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Categories
+  const deleteMultipleTransactions = async (ids) => {
+    try {
+      await Promise.all(ids.map((id) => apiDeleteTransaction(id)));
+      await loadData();
+    } catch (error) {
+      console.error("Failed to delete multiple transactions", error);
+      throw error;
+    }
+  };
+
   const addCategory = async (data) => {
     try {
       await createCategory(data);
@@ -319,7 +394,6 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Accounts
   const addAccount = async (data) => {
     try {
       await createAccount(data);
@@ -350,7 +424,39 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Budgets
+  const transferAccountFunds = async (transferData) => {
+    try {
+      const res = await transferFunds(transferData);
+      await loadData();
+      return res;
+    } catch (error) {
+      console.error("Transfer error:", error);
+      throw error;
+    }
+  };
+
+  const bulkImportTransactions = async (rows) => {
+    try {
+      const res = await apiImportTransactions(rows);
+      await loadData();
+      return res;
+    } catch (error) {
+      console.error("Bulk import error:", error);
+      throw error;
+    }
+  };
+
+  const triggerRecurringProcessing = async () => {
+    try {
+      const res = await apiProcessRecurring();
+      await loadData();
+      return res;
+    } catch (error) {
+      console.error("Recurring processing error:", error);
+      throw error;
+    }
+  };
+
   const addBudget = async (data) => {
     try {
       await createBudget(data);
@@ -381,7 +487,6 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Helpers
   const getCategoryName = (catId) => {
     const cat = categories.find((c) => c.id === parseInt(catId));
     return cat ? cat.name : "Unknown";
@@ -403,33 +508,51 @@ export const AppProvider = ({ children }) => {
     categories,
     accounts,
     budgets,
+    planLimits,
+    searchQuery,
+    setSearchQuery,
     filterType,
+    filterAccount,
     filterMonth,
     filterMinAmount,
     filterMaxAmount,
     filterFavorites,
+    datePreset,
+    setDatePreset,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
     sortBy,
     sortOrder,
     setFilterType,
+    setFilterAccount,
     setFilterMonth,
     setFilterMinAmount,
     setFilterMaxAmount,
     setFilterFavorites,
     setSortBy,
     setSortOrder,
+    currency,
+    setCurrency,
     filteredTransactions,
     financialSummary,
     categoryBreakdown,
     monthlyData,
     budgetAnalysis,
     addTransaction,
+    editTransaction,
     deleteTransaction,
+    deleteMultipleTransactions,
     addCategory,
     editCategory,
     removeCategory,
     addAccount,
     editAccount,
     removeAccount,
+    transferAccountFunds,
+    bulkImportTransactions,
+    triggerRecurringProcessing,
     addBudget,
     editBudget,
     removeBudget,

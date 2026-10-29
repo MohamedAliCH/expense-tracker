@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class CategoryController extends Controller
 {
@@ -14,8 +13,6 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        // Get system categories + user's custom categories
-        // In Eloquent we can use a simple where clause
         return Category::where('user_id', auth()->id())
             ->orWhereNull('user_id')
             ->orderBy('is_system', 'desc')
@@ -28,15 +25,23 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $user = $request->user();
+        $limits = $user->getLimits();
+        $customCount = Category::where('user_id', $user->id)->count();
+        if ($customCount >= $limits['max_categories']) {
+            return response()->json([
+                'error' => "You have reached your limit of {$limits['max_categories']} custom categories. Upgrade to Pro for unlimited categories."
+            ], 403);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|in:income,expense',
             'color' => 'required|string|max:7',
-            'emoji' => 'nullable|string|max:10'
+            'emoji' => 'nullable|string|max:50'
         ]);
 
         $validated['user_id'] = auth()->id();
-        // New categories are never system categories
         $validated['is_system'] = false;
 
         $category = Category::create($validated);
@@ -50,9 +55,9 @@ class CategoryController extends Controller
     public function show(Request $request, $id)
     {
         $category = Category::where('id', $id)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('user_id', auth()->id())
-                      ->orWhereNull('user_id');
+                    ->orWhereNull('user_id');
             })
             ->firstOrFail();
 
@@ -65,13 +70,12 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         $category = Category::where('id', $id)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('user_id', auth()->id())
-                      ->orWhereNull('user_id');
+                    ->orWhereNull('user_id');
             })
             ->firstOrFail();
 
-        // Prevent editing system categories
         if ($category->is_system) {
             return response()->json([
                 'error' => 'System categories cannot be modified'
@@ -82,7 +86,7 @@ class CategoryController extends Controller
             'name' => 'sometimes|string|max:255',
             'type' => 'sometimes|in:income,expense',
             'color' => 'sometimes|string|max:7',
-            'emoji' => 'nullable|string|max:10',
+            'emoji' => 'nullable|string|max:50',
         ]);
 
         $category->update($validated);
@@ -94,30 +98,27 @@ class CategoryController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-         $category = Category::where('id', $id)
-            ->where(function($query) {
+        $category = Category::where('id', $id)
+            ->where(function ($query) {
                 $query->where('user_id', auth()->id())
-                      ->orWhereNull('user_id');
+                    ->orWhereNull('user_id');
             })
             ->firstOrFail();
 
-        // Prevent deleting system categories
         if ($category->is_system) {
             return response()->json([
                 'error' => 'System categories cannot be deleted'
             ], 403);
         }
 
-        // Check for dependencies
-        // Assuming relationships exist in Category model: transactions(), budgets()
         if ($category->transactions()->count() > 0) {
-             return response()->json([
+            return response()->json([
                 'error' => "Cannot delete category. It has associated transactions."
             ], 400);
         }
-        
+
         if ($category->budgets()->count() > 0) {
-             return response()->json([
+            return response()->json([
                 'error' => "Cannot delete category. It has associated budgets."
             ], 400);
         }

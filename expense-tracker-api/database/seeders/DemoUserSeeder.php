@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\AccountLedgerService;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +19,7 @@ class DemoUserSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create User
+        // 1. Create or Update Demo User
         $user = User::updateOrCreate(
             ['email' => 'john@example.com'],
             [
@@ -30,133 +31,166 @@ class DemoUserSeeder extends Seeder
             ]
         );
 
-        $this->command->info('User John Doe created/updated.');
+        if ($this->command) {
+            $this->command->info('User John Doe created/updated.');
+        }
 
-        // 2. Clear existing data for this user to avoid duplicates if run multiple times
+        // 2. Clear existing data for this user to avoid duplicates
         Transaction::where('user_id', $user->id)->delete();
         Budget::where('user_id', $user->id)->delete();
-        // Category::where('user_id', $user->id)->delete(); // Keep default categories if any, but we'll add specific ones
         Account::where('user_id', $user->id)->delete();
         Subscription::where('user_id', $user->id)->delete();
         Payment::where('user_id', $user->id)->delete();
 
-        // 3. Create Accounts
+        // 3. Create Accounts with canonical types (opening balances before 6-month ledger)
         $checking = Account::create([
             'user_id' => $user->id,
             'name' => 'Main Checking',
-            'type' => 'Bank',
-            'balance' => 5430.50,
+            'type' => 'bank',
+            'balance' => 2100.00,
         ]);
 
         $savings = Account::create([
             'user_id' => $user->id,
-            'name' => 'Savings',
-            'type' => 'Savings',
-            'balance' => 12500.00,
+            'name' => 'Marine Reserve Vault',
+            'type' => 'wallet',
+            'balance' => 8400.00,
         ]);
 
         $creditCard = Account::create([
             'user_id' => $user->id,
-            'name' => 'Travel Rewards Card',
-            'type' => 'Credit Card',
-            'balance' => -450.25,
+            'name' => 'Horizon Rewards Card',
+            'type' => 'credit_card',
+            'balance' => 0.00,
         ]);
 
-        $this->command->info('Accounts created.');
-
-        // 4. Create Categories
+        // 4. Create or Update Categories with Phosphor icon keys and oceanic palette (no emojis, no purple)
         $cats = [];
-        
-        // Income
-        $cats['salary'] = Category::firstOrCreate(
+
+        $cats['salary'] = Category::updateOrCreate(
             ['user_id' => $user->id, 'name' => 'Salary'],
-            ['type' => 'income', 'emoji' => '💰', 'color' => '#10b981']
+            ['type' => 'income', 'emoji' => 'income', 'color' => '#1f7a8c']
         );
-        $cats['freelance'] = Category::firstOrCreate(
+        $cats['freelance'] = Category::updateOrCreate(
             ['user_id' => $user->id, 'name' => 'Freelance'],
-            ['type' => 'income', 'emoji' => '💻', 'color' => '#3b82f6']
+            ['type' => 'income', 'emoji' => 'freelance', 'color' => '#2a9d8f']
         );
 
-        // Expense
-        $cats['rent'] = Category::firstOrCreate(
-            ['user_id' => $user->id, 'name' => 'Rent'],
-            ['type' => 'expense', 'emoji' => '🏠', 'color' => '#ef4444']
+        $cats['rent'] = Category::updateOrCreate(
+            ['user_id' => $user->id, 'name' => 'Rent & Moorage'],
+            ['type' => 'expense', 'emoji' => 'housing', 'color' => '#c85a32']
         );
-        $cats['groceries'] = Category::firstOrCreate(
+        // Clean up legacy 'Rent' if present
+        Category::where('user_id', $user->id)->where('name', 'Rent')->delete();
+
+        $cats['groceries'] = Category::updateOrCreate(
             ['user_id' => $user->id, 'name' => 'Groceries'],
-            ['type' => 'expense', 'emoji' => '🛒', 'color' => '#f97316']
+            ['type' => 'expense', 'emoji' => 'groceries', 'color' => '#d97724']
         );
-        $cats['dining'] = Category::firstOrCreate(
+        $cats['dining'] = Category::updateOrCreate(
             ['user_id' => $user->id, 'name' => 'Dining Out'],
-            ['type' => 'expense', 'emoji' => '🍽️', 'color' => '#f59e0b']
+            ['type' => 'expense', 'emoji' => 'dining', 'color' => '#e09f3e']
         );
-        $cats['entertainment'] = Category::firstOrCreate(
+        $cats['entertainment'] = Category::updateOrCreate(
             ['user_id' => $user->id, 'name' => 'Entertainment'],
-            ['type' => 'expense', 'emoji' => '🎬', 'color' => '#8b5cf6']
+            ['type' => 'expense', 'emoji' => 'entertainment', 'color' => '#4a6fa5']
         );
-        $cats['transport'] = Category::firstOrCreate(
+        $cats['transport'] = Category::updateOrCreate(
             ['user_id' => $user->id, 'name' => 'Transport'],
-            ['type' => 'expense', 'emoji' => '🚗', 'color' => '#6366f1']
+            ['type' => 'expense', 'emoji' => 'transport', 'color' => '#3d5a80']
         );
-        $cats['utilities'] = Category::firstOrCreate(
+        $cats['utilities'] = Category::updateOrCreate(
             ['user_id' => $user->id, 'name' => 'Utilities'],
-            ['type' => 'expense', 'emoji' => '💡', 'color' => '#ec4899']
+            ['type' => 'expense', 'emoji' => 'utilities', 'color' => '#52796f']
         );
 
-        $this->command->info('Categories created.');
-
-        // 5. Create Transactions (Recent & Past)
-        $transactions = [
-            // Current Month
-            ['date' => Carbon::now()->subDays(1), 'amount' => 85.50, 'type' => 'expense', 'category' => 'groceries', 'account' => $checking, 'desc' => 'Weekly Groceries'],
-            ['date' => Carbon::now()->subDays(2), 'amount' => 45.00, 'type' => 'expense', 'category' => 'dining', 'account' => $checking, 'desc' => 'Dinner with Friends'],
-            ['date' => Carbon::now()->subDays(5), 'amount' => 120.00, 'type' => 'expense', 'category' => 'transport', 'account' => $creditCard, 'desc' => 'Gas & Parking'],
-            ['date' => Carbon::now()->subDays(10), 'amount' => 2500.00, 'type' => 'income', 'category' => 'salary', 'account' => $checking, 'desc' => 'Monthly Salary'],
-            ['date' => Carbon::now()->subDays(12), 'amount' => 15.99, 'type' => 'expense', 'category' => 'entertainment', 'account' => $creditCard, 'desc' => 'Netflix Subscription'],
-            ['date' => Carbon::now()->subDays(15), 'amount' => 1200.00, 'type' => 'expense', 'category' => 'rent', 'account' => $checking, 'desc' => 'Monthly Rent', 'is_recurring' => true],
-            ['date' => Carbon::now()->subDays(18), 'amount' => 500.00, 'type' => 'income', 'category' => 'freelance', 'account' => $savings, 'desc' => 'Web Design Project'],
-            
-            // Last Month
-            ['date' => Carbon::now()->subMonth()->subDays(5), 'amount' => 92.30, 'type' => 'expense', 'category' => 'groceries', 'account' => $checking, 'desc' => 'Grocery Run'],
-            ['date' => Carbon::now()->subMonth()->subDays(15), 'amount' => 1200.00, 'type' => 'expense', 'category' => 'rent', 'account' => $checking, 'desc' => 'Monthly Rent', 'is_recurring' => true],
-            ['date' => Carbon::now()->subMonth()->subDays(10), 'amount' => 2500.00, 'type' => 'income', 'category' => 'salary', 'account' => $checking, 'desc' => 'Monthly Salary'],
+        // 5. Seed 6 full months of realistic undulating transactions so the 6-month wave chart is rich
+        $monthlyBlueprints = [
+            5 => ['salary' => 3600.00, 'freelance' => 450.00,  'rent' => 1250.00, 'groceries' => [118.40, 94.20, 112.10], 'dining' => [64.00, 48.50], 'transport' => 135.00, 'utilities' => 142.00, 'entertainment' => 45.00],
+            4 => ['salary' => 3600.00, 'freelance' => 980.00,  'rent' => 1250.00, 'groceries' => [105.80, 128.90, 88.40], 'dining' => [82.00, 54.20, 39.00], 'transport' => 168.50, 'utilities' => 156.20, 'entertainment' => 110.00],
+            3 => ['salary' => 3600.00, 'freelance' => 320.00,  'rent' => 1250.00, 'groceries' => [114.00, 99.50, 108.30], 'dining' => [58.00, 72.40], 'transport' => 145.00, 'utilities' => 168.90, 'entertainment' => 65.00],
+            2 => ['salary' => 3850.00, 'freelance' => 1250.00, 'rent' => 1250.00, 'groceries' => [132.40, 118.00, 96.70], 'dining' => [94.00, 62.50, 48.00], 'transport' => 192.00, 'utilities' => 149.30, 'entertainment' => 135.00],
+            1 => ['salary' => 3850.00, 'freelance' => 640.00,  'rent' => 1250.00, 'groceries' => [110.20, 104.80, 121.50], 'dining' => [76.50, 52.00], 'transport' => 154.00, 'utilities' => 138.40, 'entertainment' => 84.00],
+            0 => ['salary' => 3850.00, 'freelance' => 890.00,  'rent' => 1250.00, 'groceries' => [124.60, 98.40, 115.20], 'dining' => [68.00, 54.50, 42.00], 'transport' => 142.00, 'utilities' => 146.80, 'entertainment' => 59.99],
         ];
 
-        foreach ($transactions as $t) {
-            Transaction::create([
-                'user_id' => $user->id,
-                'account_id' => $t['account']->id,
-                'category_id' => $cats[$t['category']]->id,
-                'amount' => $t['amount'],
-                'type' => $t['type'],
-                'date' => $t['date']->format('Y-m-d'),
-                'description' => $t['desc'],
-            ]);
+        foreach ($monthlyBlueprints as $monthsAgo => $plan) {
+            $monthBase = Carbon::now()->subMonths($monthsAgo)->startOfMonth();
+            $maxDay = $monthsAgo === 0 ? max(1, Carbon::now()->day - 1) : 26;
+
+            $clampDay = function (int $preferredDay) use ($monthBase, $maxDay): string {
+                $day = min($preferredDay, $maxDay);
+                return $monthBase->copy()->addDays(max(0, $day - 1))->format('Y-m-d');
+            };
+
+            $rows = [
+                ['date' => $clampDay(1),  'amount' => $plan['salary'], 'type' => 'income',  'cat' => 'salary',        'acc' => $checking,   'desc' => 'Monthly Salary Deposit'],
+                ['date' => $clampDay(3),  'amount' => $plan['rent'],   'type' => 'expense', 'cat' => 'rent',          'acc' => $checking,   'desc' => 'Harbor Apartment & Moorage'],
+                ['date' => $clampDay(6),  'amount' => $plan['groceries'][0], 'type' => 'expense', 'cat' => 'groceries', 'acc' => $checking, 'desc' => 'Coastal Market Provisions'],
+                ['date' => $clampDay(9),  'amount' => $plan['dining'][0],    'type' => 'expense', 'cat' => 'dining',    'acc' => $creditCard, 'desc' => 'Waterfront Bistro'],
+                ['date' => $clampDay(12), 'amount' => $plan['freelance'],    'type' => 'income',  'cat' => 'freelance', 'acc' => $savings,    'desc' => 'Marine UI Advisory Retainer'],
+                ['date' => $clampDay(14), 'amount' => $plan['groceries'][1], 'type' => 'expense', 'cat' => 'groceries', 'acc' => $checking,   'desc' => 'Weekly Fresh Groceries'],
+                ['date' => $clampDay(16), 'amount' => $plan['transport'],    'type' => 'expense', 'cat' => 'transport', 'acc' => $creditCard, 'desc' => 'Fuel & Transit Pass'],
+                ['date' => $clampDay(18), 'amount' => $plan['utilities'],    'type' => 'expense', 'cat' => 'utilities', 'acc' => $checking,   'desc' => 'Electric, Fiber & Water'],
+                ['date' => $clampDay(21), 'amount' => $plan['dining'][1],    'type' => 'expense', 'cat' => 'dining',    'acc' => $creditCard, 'desc' => 'Harbor Coffee & Dinner'],
+                ['date' => $clampDay(23), 'amount' => $plan['groceries'][2], 'type' => 'expense', 'cat' => 'groceries', 'acc' => $checking,   'desc' => 'Artisan Pantry Restock'],
+                ['date' => $clampDay(25), 'amount' => $plan['entertainment'],'type' => 'expense', 'cat' => 'entertainment', 'acc' => $creditCard, 'desc' => 'Streaming & Sailing Club'],
+            ];
+
+            if (isset($plan['dining'][2])) {
+                $rows[] = ['date' => $clampDay(26), 'amount' => $plan['dining'][2], 'type' => 'expense', 'cat' => 'dining', 'acc' => $checking, 'desc' => 'Weekend Brunch'];
+            }
+
+            foreach ($rows as $r) {
+                $tx = Transaction::create([
+                    'user_id' => $user->id,
+                    'account_id' => $r['acc']->id,
+                    'category_id' => $cats[$r['cat']]->id,
+                    'amount' => $r['amount'],
+                    'type' => $r['type'],
+                    'date' => $r['date'],
+                    'description' => $r['desc'],
+                ]);
+                AccountLedgerService::applyTransaction($tx);
+            }
         }
 
-        $this->command->info('Transactions created.');
+        // 6. Create Budgets for current month
+        $startOfMonth = Carbon::now()->startOfMonth()->format('Y-m-d');
 
-        // 6. Create Budgets
         Budget::create([
             'user_id' => $user->id,
             'category_id' => $cats['groceries']->id,
-            'amount' => 400.00,
+            'amount' => 450.00,
             'period' => 'monthly',
-            'start_date' => Carbon::now()->startOfMonth()->format('Y-m-d'),
+            'start_date' => $startOfMonth,
         ]);
 
         Budget::create([
             'user_id' => $user->id,
             'category_id' => $cats['dining']->id,
-            'amount' => 200.00,
+            'amount' => 220.00,
             'period' => 'monthly',
-            'start_date' => Carbon::now()->startOfMonth()->format('Y-m-d'),
+            'start_date' => $startOfMonth,
         ]);
 
-        $this->command->info('Budgets created.');
+        Budget::create([
+            'user_id' => $user->id,
+            'category_id' => $cats['transport']->id,
+            'amount' => 200.00,
+            'period' => 'monthly',
+            'start_date' => $startOfMonth,
+        ]);
 
-        // 7. Create Stripe Data
-        // Active Subscription
+        Budget::create([
+            'user_id' => $user->id,
+            'category_id' => $cats['utilities']->id,
+            'amount' => 180.00,
+            'period' => 'monthly',
+            'start_date' => $startOfMonth,
+        ]);
+
+        // 7. Create Stripe Subscription & Payment History
         Subscription::create([
             'user_id' => $user->id,
             'stripe_subscription_id' => 'sub_test_' . Str::random(10),
@@ -168,7 +202,6 @@ class DemoUserSeeder extends Seeder
             'current_period_end' => Carbon::now()->addDays(20),
         ]);
 
-        // Payment History
         Payment::create([
             'user_id' => $user->id,
             'stripe_payment_id' => 'pi_test_' . Str::random(10),
@@ -179,9 +212,8 @@ class DemoUserSeeder extends Seeder
             'description' => 'Premium Subscription - Monthly',
             'created_at' => Carbon::now()->subDays(10),
         ]);
-        
-        // Synced Payment (Simulated)
-        $syncedPayment = Payment::create([
+
+        Payment::create([
             'user_id' => $user->id,
             'stripe_payment_id' => 'pi_test_' . Str::random(10),
             'stripe_customer_id' => $user->stripe_customer_id,
@@ -192,11 +224,9 @@ class DemoUserSeeder extends Seeder
             'created_at' => Carbon::now()->subDays(40),
             'synced_to_transaction' => true,
         ]);
-        
-        // Add logic to actually link it to a transaction if model supports it, 
-        // but for now the boolean flag is enough for the UI demo.
 
-        $this->command->info('Stripe data created.');
-        $this->command->info('Demo seeding complete for john@example.com');
+        if ($this->command) {
+            $this->command->info('Demo seeding complete for john@example.com');
+        }
     }
 }

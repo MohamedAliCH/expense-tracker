@@ -16,7 +16,6 @@ class StripeWebhookController extends Controller
 {
     public function __construct()
     {
-        // Set Stripe API key for all webhook handlers
         Stripe::setApiKey(config('stripe.secret'));
     }
 
@@ -33,32 +32,27 @@ class StripeWebhookController extends Controller
             $event = Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
         } catch (SignatureVerificationException $e) {
             return response()->json(['error' => 'Invalid signature'], 400);
+        } catch (\UnexpectedValueException $e) {
+            return response()->json(['error' => 'Invalid payload'], 400);
         }
 
-        // Handle the event
         switch ($event->type) {
             case 'checkout.session.completed':
                 $this->handleCheckoutSessionCompleted($event->data->object);
                 break;
-            // Subscription renewed
             case 'invoice.paid':
                 $this->handleInvoicePaid($event->data->object);
                 break;
-            // Subscription updated
             case 'customer.subscription.updated':
                 $this->handleSubscriptionUpdated($event->data->object);
                 break;
-            // Subscription cancelled
             case 'customer.subscription.deleted':
                 $this->handleSubscriptionDeleted($event->data->object);
                 break;
-            // Payment was successful
             case 'payment_intent.succeeded':
                 $this->handlePaymentIntentSucceeded($event->data->object);
                 break;
-
             default:
-                // Unhandled event type
                 break;
         }
 
@@ -66,7 +60,7 @@ class StripeWebhookController extends Controller
     }
 
     /**
-     * Handle checkout.session.completed
+     * Handle checkout.session.completed idempotently
      */
     protected function handleCheckoutSessionCompleted($session): void
     {
@@ -76,22 +70,21 @@ class StripeWebhookController extends Controller
         $user = User::find($userId);
         if (!$user) return;
 
-        // Get subscription details from Stripe
         $stripeSubscription = \Stripe\Subscription::retrieve($session->subscription);
 
-        // Create local subscription record
-        Subscription::create([
-            'user_id' => $user->id,
-            'stripe_subscription_id' => $stripeSubscription->id,
-            'stripe_customer_id' => $session->customer,
-            'stripe_price_id' => $stripeSubscription->items->data[0]->price->id,
-            'plan_name' => 'premium',
-            'status' => $stripeSubscription->status,
-            'current_period_start' => date('Y-m-d H:i:s', $stripeSubscription->current_period_start),
-            'current_period_end' => date('Y-m-d H:i:s', $stripeSubscription->current_period_end),
-        ]);
+        Subscription::updateOrCreate(
+            ['stripe_subscription_id' => $stripeSubscription->id],
+            [
+                'user_id' => $user->id,
+                'stripe_customer_id' => $session->customer,
+                'stripe_price_id' => $stripeSubscription->items->data[0]->price->id,
+                'plan_name' => 'premium',
+                'status' => $stripeSubscription->status,
+                'current_period_start' => date('Y-m-d H:i:s', $stripeSubscription->current_period_start),
+                'current_period_end' => date('Y-m-d H:i:s', $stripeSubscription->current_period_end),
+            ]
+        );
 
-        // Update user premium status
         $user->update([
             'is_premium' => true,
             'premium_expires_at' => date('Y-m-d H:i:s', $stripeSubscription->current_period_end),
@@ -106,7 +99,6 @@ class StripeWebhookController extends Controller
         $subscription = Subscription::where('stripe_subscription_id', $invoice->subscription)->first();
         if (!$subscription) return;
 
-        // Update subscription period
         $stripeSubscription = \Stripe\Subscription::retrieve($invoice->subscription);
         $subscription->update([
             'current_period_start' => date('Y-m-d H:i:s', $stripeSubscription->current_period_start),
@@ -114,7 +106,6 @@ class StripeWebhookController extends Controller
             'status' => 'active',
         ]);
 
-        // Extend user premium
         $subscription->user->update([
             'is_premium' => true,
             'premium_expires_at' => date('Y-m-d H:i:s', $stripeSubscription->current_period_end),
@@ -148,7 +139,7 @@ class StripeWebhookController extends Controller
     }
 
     /**
-     * Handle payment_intent.succeeded (for tracking)
+     * Handle payment_intent.succeeded idempotently
      */
     protected function handlePaymentIntentSucceeded($paymentIntent): void
     {
@@ -158,18 +149,19 @@ class StripeWebhookController extends Controller
         $user = User::where('stripe_customer_id', $customerId)->first();
         if (!$user) return;
 
-        // Record the payment for tracking
-        Payment::create([
-            'user_id' => $user->id,
-            'stripe_payment_id' => $paymentIntent->id,
-            'stripe_customer_id' => $customerId,
-            'amount' => $paymentIntent->amount / 100, // Convert from cents
-            'currency' => $paymentIntent->currency,
-            'status' => 'succeeded',
-            'payment_type' => 'one_time',
-            'description' => $paymentIntent->description,
-            'metadata' => $paymentIntent->metadata ? (array)$paymentIntent->metadata : null,
-            'paid_at' => now(),
-        ]);
+        Payment::updateOrCreate(
+            ['stripe_payment_id' => $paymentIntent->id],
+            [
+                'user_id' => $user->id,
+                'stripe_customer_id' => $customerId,
+                'amount' => $paymentIntent->amount / 100,
+                'currency' => $paymentIntent->currency,
+                'status' => 'succeeded',
+                'payment_type' => 'one_time',
+                'description' => $paymentIntent->description,
+                'metadata' => $paymentIntent->metadata ? (array) $paymentIntent->metadata : null,
+                'paid_at' => now(),
+            ]
+        );
     }
 }

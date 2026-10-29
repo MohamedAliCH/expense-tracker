@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { CheckCircle, ArrowRight, Loader } from "lucide-react";
-import "./SubscriptionSuccess.css";
+import { CheckCircle, ArrowRight, ArrowsClockwise } from "@phosphor-icons/react";
 import { useAuth } from "../../contexts/AuthContext";
 
 const SubscriptionSuccess = () => {
@@ -18,23 +17,21 @@ const SubscriptionSuccess = () => {
     }
 
     let attempts = 0;
-    const maxAttempts = 10; // Try for 20 seconds (10 * 2000ms)
+    const maxAttempts = 10;
 
     const checkStatus = async () => {
-      // If already premium, stop verifying
       if (user?.is_premium) {
         setVerifying(false);
         return;
       }
 
-      await refreshUser(); // Fetch latest user data
+      await refreshUser();
       attempts++;
 
-      // Continue polling if not yet premium and attempts remain
       if (attempts < maxAttempts && !user?.is_premium) {
         setTimeout(checkStatus, 2000);
       } else {
-        setVerifying(false); // Stop loading regardless of result
+        setVerifying(false);
       }
     };
 
@@ -42,29 +39,36 @@ const SubscriptionSuccess = () => {
   }, [sessionId, navigate, refreshUser, user?.is_premium]);
 
   return (
-    <div className="success-container">
-      <div className="success-card">
-        <div className="success-icon-wrapper">
+    <div className="max-w-[520px] mx-auto py-12 px-4">
+      <div className="moorly-card p-8 text-center flex flex-col items-center gap-4">
+        <div
+          className="w-14 h-14 rounded-[16px] flex items-center justify-center"
+          style={{
+            background: verifying ? "var(--accent-soft)" : "var(--good-soft)",
+            color: verifying ? "var(--accent-text)" : "var(--good)",
+          }}
+        >
           {verifying ? (
-            <Loader className="success-icon spin-animation" size={64} />
+            <ArrowsClockwise size={28} weight="bold" className="animate-spin" />
           ) : (
-            <CheckCircle className="success-icon" size={64} />
+            <CheckCircle size={28} weight="fill" />
           )}
         </div>
 
-        <h1>{verifying ? "Verifying Payment..." : "Payment Successful! 🎉"}</h1>
+        <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+          {verifying ? "Binding Coverage..." : "Pro Tier Bound"}
+        </h1>
 
-        <p className="success-message">
+        <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--muted)" }}>
           {verifying
-            ? "Please wait while we confirm your subscription with Stripe."
-            : "Thank you for upgrading to Premium! Your account has been instantly upgraded. You now have access to unlimited budgets, accounts, and analytics."}
+            ? "Confirming your settlement details with Stripe."
+            : "Your Moorly desk has been upgraded with unlimited budget tide lines, vaults, and exports."}
         </p>
 
-        <div className="success-actions">
-          <Link to="/dashboard" className="dashboard-btn">
-            Go to Dashboard <ArrowRight size={20} />
-          </Link>
-        </div>
+        <Link to="/dashboard" className="moorly-btn moorly-btn--primary mt-2">
+          <span>Return to Desk</span>
+          <ArrowRight size={16} weight="bold" />
+        </Link>
       </div>
     </div>
   );

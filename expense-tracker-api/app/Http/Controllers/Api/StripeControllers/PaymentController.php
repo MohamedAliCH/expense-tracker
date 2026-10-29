@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api\StripeControllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Account;
 use App\Models\Payment;
 use App\Models\Transaction;
 use App\Models\Category;
+use App\Services\AccountLedgerService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
@@ -37,7 +40,48 @@ class PaymentController extends Controller
     }
 
     /**
-     * Sync payment to transaction (create income transaction)
+     * Resolve or create the category and account for syncing a Stripe payment
+     */
+    private function resolveSyncTarget($user): array
+    {
+        $category = Category::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'name' => 'Stripe Payment',
+            ],
+            [
+                'type' => 'expense',
+                'color' => '#1f7a8c',
+                'emoji' => 'utilities',
+            ]
+        );
+
+        // Prefer an existing bank/credit_card account if user is at their free account limit
+        $account = Account::where('user_id', $user->id)
+            ->where('name', 'Stripe')
+            ->first();
+
+        if (!$account) {
+            $limits = $user->getLimits();
+            if ($user->accounts()->count() >= $limits['max_accounts']) {
+                $account = $user->accounts()->first();
+            }
+        }
+
+        if (!$account) {
+            $account = Account::create([
+                'user_id' => $user->id,
+                'name' => 'Stripe',
+                'type' => 'bank',
+                'balance' => 0,
+            ]);
+        }
+
+        return [$category, $account];
+    }
+
+    /**
+     * Sync payment to transaction
      */
     public function syncToTransaction(Request $request, int $id): JsonResponse
     {
@@ -52,52 +96,28 @@ class PaymentController extends Controller
             ], 400);
         }
 
-        // Find or create a "Stripe Payment" category
-        $category = Category::firstOrCreate(
-            [
+        return DB::transaction(function () use ($request, $payment) {
+            [$category, $account] = $this->resolveSyncTarget($request->user());
+
+            $transaction = Transaction::create([
                 'user_id' => $request->user()->id,
-                'name' => 'Stripe Payment',
-            ],
-            [
+                'category_id' => $category->id,
+                'account_id' => $account->id,
+                'amount' => $payment->amount,
                 'type' => 'expense',
-                'color' => '#635BFF', // Stripe purple
-                'emoji' => '💳',
-                'is_system' => false,
-            ]
-        );
+                'description' => $payment->description ?? 'Stripe Payment',
+                'date' => $payment->paid_at ?? $payment->created_at,
+            ]);
 
-        // Get or create a default account for Stripe payments
-        $account = \App\Models\Account::firstOrCreate(
-            [
-                'user_id' => $request->user()->id,
-                'name' => 'Stripe',
-            ],
-            [
-                'type' => 'bank',
-                'balance' => 0,
-                'currency' => 'EUR',
-            ]
-        );
+            AccountLedgerService::applyTransaction($transaction);
+            $payment->markAsSynced($transaction->id);
 
-        // Create transaction
-        $transaction = Transaction::create([
-            'user_id' => $request->user()->id,
-            'category_id' => $category->id,
-            'account_id' => $account->id,
-            'amount' => $payment->amount,
-            'type' => 'expense',
-            'description' => $payment->description ?? 'Stripe Payment',
-            'date' => $payment->paid_at ?? $payment->created_at,
-        ]);
-
-        // Mark payment as synced
-        $payment->markAsSynced($transaction->id);
-
-        return response()->json([
-            'message' => 'Payment synced to transaction',
-            'transaction' => $transaction,
-            'payment' => $payment,
-        ]);
+            return response()->json([
+                'message' => 'Payment synced to transaction',
+                'transaction' => $transaction->load(['category', 'account']),
+                'payment' => $payment,
+            ]);
+        });
     }
 
     /**
@@ -110,59 +130,44 @@ class PaymentController extends Controller
             'payment_ids.*' => 'integer',
         ]);
 
-        $synced = 0;
-        $payments = $request->user()
-            ->payments()
-            ->whereIn('id', $request->payment_ids)
-            ->where('synced_to_transaction', false)
-            ->where('status', 'succeeded')
-            ->get();
+        return DB::transaction(function () use ($request) {
+            $synced = 0;
+            $payments = $request->user()
+                ->payments()
+                ->whereIn('id', $request->payment_ids)
+                ->where('synced_to_transaction', false)
+                ->where('status', 'succeeded')
+                ->get();
 
-        foreach ($payments as $payment) {
-            // Use the same logic as single sync
-            $category = Category::firstOrCreate(
-                [
+            if ($payments->isEmpty()) {
+                return response()->json([
+                    'message' => '0 payments synced to transactions',
+                    'synced_count' => 0,
+                ]);
+            }
+
+            [$category, $account] = $this->resolveSyncTarget($request->user());
+
+            foreach ($payments as $payment) {
+                $transaction = Transaction::create([
                     'user_id' => $request->user()->id,
-                    'name' => 'Stripe Payment',
-                ],
-                [
+                    'category_id' => $category->id,
+                    'account_id' => $account->id,
+                    'amount' => $payment->amount,
                     'type' => 'expense',
-                    'color' => '#635BFF',
-                    'emoji' => '💳',
-                    'is_system' => false,
-                ]
-            );
+                    'description' => $payment->description ?? 'Stripe Payment',
+                    'date' => $payment->paid_at ?? $payment->created_at,
+                ]);
 
-            // Get or create a default account
-            $account = \App\Models\Account::firstOrCreate(
-                [
-                    'user_id' => $request->user()->id,
-                    'name' => 'Stripe',
-                ],
-                [
-                    'type' => 'bank',
-                    'balance' => 0,
-                    'currency' => 'EUR',
-                ]
-            );
+                AccountLedgerService::applyTransaction($transaction);
+                $payment->markAsSynced($transaction->id);
+                $synced++;
+            }
 
-            $transaction = Transaction::create([
-                'user_id' => $request->user()->id,
-                'category_id' => $category->id,
-                'account_id' => $account->id,
-                'amount' => $payment->amount,
-                'type' => 'expense',
-                'description' => $payment->description ?? 'Stripe Payment',
-                'date' => $payment->paid_at ?? $payment->created_at,
+            return response()->json([
+                'message' => "$synced payments synced to transactions",
+                'synced_count' => $synced,
             ]);
-
-            $payment->markAsSynced($transaction->id);
-            $synced++;
-        }
-
-        return response()->json([
-            'message' => "$synced payments synced to transactions",
-            'synced_count' => $synced,
-        ]);
+        });
     }
 }

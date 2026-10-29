@@ -32,11 +32,11 @@ class AnalyticsController extends Controller
         $expense = $totals->get('expense')?->total ?? 0;
 
         // Spending by category
-        // Ensure all selected non-aggregated columns are in GROUP BY for PG compatibility
-        $categoryBreakdown = Transaction::where('user_id', $userId)
-            ->where('type', 'expense')
-            ->whereBetween('date', [$startDate, $endDate])
-            ->join('categories', 'transactions.category_id', '=', 'categories.id')
+        // Explicitly qualify transactions table columns to prevent PostgreSQL ambiguous column error
+        $categoryBreakdown = Transaction::join('categories', 'transactions.category_id', '=', 'categories.id')
+            ->where('transactions.user_id', $userId)
+            ->where('transactions.type', 'expense')
+            ->whereBetween('transactions.date', [$startDate, $endDate])
             ->selectRaw('
                 categories.id,
                 categories.name,
@@ -66,30 +66,31 @@ class AnalyticsController extends Controller
                 ];
             });
 
-        // Monthly trend (last 6 months)
-        // This loop-based approach is already cross-compatible as it runs simple queries per month
-        $monthlyTrend = collect(range(0, 5))->map(function ($i) use ($userId) {
+        // Monthly trend (last 6 months) - Optimized single SQL query
+        $startDate6M = now()->subMonths(5)->startOfMonth();
+        $rawMonthly = Transaction::where('user_id', $userId)
+            ->where('date', '>=', $startDate6M)
+            ->selectRaw("
+                EXTRACT(YEAR FROM date)::integer as yr,
+                EXTRACT(MONTH FROM date)::integer as mo,
+                SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
+                SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expense
+            ")
+            ->groupByRaw("EXTRACT(YEAR FROM date), EXTRACT(MONTH FROM date)")
+            ->get()
+            ->keyBy(function ($row) {
+                return $row->yr . '-' . $row->mo;
+            });
+
+        $monthlyTrend = collect(range(0, 5))->map(function ($i) use ($rawMonthly) {
             $date = now()->subMonths($i);
-            $month = $date->format('M');
-            $year = $date->year;
-            $monthNum = $date->month;
-
-            $income = Transaction::where('user_id', $userId)
-                ->where('type', 'income')
-                ->whereYear('date', $year)
-                ->whereMonth('date', $monthNum)
-                ->sum('amount');
-
-            $expense = Transaction::where('user_id', $userId)
-                ->where('type', 'expense')
-                ->whereYear('date', $year)
-                ->whereMonth('date', $monthNum)
-                ->sum('amount');
+            $key = $date->year . '-' . $date->month;
+            $row = $rawMonthly->get($key);
 
             return [
-                'month' => $month,
-                'income' => $income,
-                'expense' => $expense
+                'month' => $date->format('M'),
+                'income' => (float) ($row?->income ?? 0),
+                'expense' => (float) ($row?->expense ?? 0),
             ];
         })->reverse()->values();
 

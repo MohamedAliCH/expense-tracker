@@ -2,7 +2,173 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --font: "Urbanist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --fs-2xs: 11px;
+  --fs-xs: 12px;
+  --fs-sm: 12.5px;
+  --fs-md: 13.5px;
+  --fs-base: 14px;
+  --fs-lg: 15px;
+  --fs-xl: 17px;
+  --fs-2xl: 20px;
+  --fs-3xl: 22px;
+  --fs-4xl: 26px;
+  --fs-display: 34px;
+
+  --r-sm: 9px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --gap: 16px;
+  --pad-x: clamp(16px, 2.2vw, 32px);
+  --max: 1560px;
+
+  /* Moorly Light Oceanic Palette */
+  --bg: oklch(95% 0.018 215);
+  --glass: #ffffffad;
+  --glass-strong: #fafcfde8;
+  --glass-rim: #ffffffbf;
+  --glass-hi: #fffffff5;
+  --blur: 22px;
+
+  --card: #ffffffdb;
+  --card-2: oklch(45% 0.04 220 / 0.06);
+  --card-3: oklch(45% 0.04 220 / 0.11);
+
+  --ink: oklch(22% 0.025 230);
+  --ink-2: oklch(36% 0.025 230);
+  --muted: oklch(47% 0.02 230);
+
+  --line: oklch(30% 0.03 230 / 0.09);
+  --line-2: oklch(30% 0.03 230 / 0.16);
+
+  --shadow: 0 1px 1px oklch(30% 0.05 230 / 0.04), 0 12px 32px -18px oklch(35% 0.06 225 / 0.32);
+  --shadow-lg: 0 2px 6px oklch(30% 0.05 230 / 0.06), 0 32px 70px -26px oklch(30% 0.07 225 / 0.45);
+
+  /* Primary Oceanic Accent */
+  --accent: oklch(50% 0.09 205);
+  --accent-hi: oklch(56% 0.095 205);
+  --accent-ink: #ffffff;
+  --accent-soft: oklch(50% 0.09 205 / 0.13);
+  --accent-text: oklch(44% 0.085 205);
+
+  /* Semantic Status Tokens */
+  --warm: oklch(74% 0.13 62);
+  --warm-text: oklch(52% 0.11 55);
+  --warm-soft: oklch(74% 0.13 62 / 0.18);
+
+  --good: oklch(50% 0.11 155);
+  --warn: oklch(52% 0.11 68);
+  --bad: oklch(52% 0.16 25);
+  --info: oklch(50% 0.12 250);
+
+  --good-soft: oklch(60% 0.12 155 / 0.15);
+  --warn-soft: oklch(75% 0.13 75 / 0.22);
+  --bad-soft: oklch(60% 0.16 25 / 0.13);
+  --info-soft: oklch(60% 0.12 250 / 0.13);
+
+  /* Nautical Category Tones */
+  --c-hull: oklch(56% 0.12 250);
+  --c-cargo: oklch(72% 0.13 78);
+  --c-marina: oklch(60% 0.11 165);
+  --c-build: oklch(62% 0.13 40);
+  --c-fish: oklch(64% 0.11 125);
+  --c-charter: oklch(62% 0.13 8);
+
+  /* KPI Pastel Tile Tints */
+  --tile-sea: oklch(88% 0.06 195 / 0.65);
+  --tile-sand: oklch(92% 0.06 80 / 0.68);
+  --tile-coral: oklch(89% 0.06 40 / 0.64);
+  --tile-sky: oklch(89% 0.05 245 / 0.64);
+  --tile-ink: oklch(22% 0.025 230);
+  --tile-muted: oklch(22% 0.025 230 / 0.68);
+
+  /* Horizon Sea Backdrop Tokens */
+  --sky1: oklch(97.5% 0.012 230);
+  --sky2: oklch(94.5% 0.03 210);
+  --sun: oklch(93% 0.075 70);
+  --w1: oklch(90% 0.045 195);
+  --w2: oklch(86% 0.06 205);
+  --w3: oklch(82% 0.07 215);
+  --w4: oklch(78% 0.075 228);
+  --crest: #ffffffbf;
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: oklch(17% 0.022 235);
+  --glass: #0f161cb8;
+  --glass-strong: #12191feb;
+  --glass-rim: #ffffff17;
+  --glass-hi: #ffffff24;
+
+  --card: #1e272ee6;
+  --card-2: #dcf0f50b;
+  --card-3: #dcf0f517;
+
+  --ink: oklch(94% 0.01 220);
+  --ink-2: oklch(84% 0.015 220);
+  --muted: oklch(72% 0.018 225);
+
+  --line: #dcf0f514;
+  --line-2: #dcf0f526;
+
+  --shadow: 0 1px 1px #0000004d, 0 16px 36px -18px #000000b3;
+  --shadow-lg: 0 2px 6px #00000066, 0 34px 80px -26px #000000d9;
+
+  --accent: oklch(77% 0.1 195);
+  --accent-hi: oklch(82% 0.095 195);
+  --accent-ink: oklch(20% 0.04 215);
+  --accent-soft: oklch(77% 0.1 195 / 0.15);
+  --accent-text: oklch(82% 0.09 195);
+
+  --warm: oklch(80% 0.12 65);
+  --warm-text: oklch(84% 0.1 65);
+  --warm-soft: oklch(80% 0.12 65 / 0.16);
+
+  --good: oklch(79% 0.12 155);
+  --warn: oklch(82% 0.12 78);
+  --bad: oklch(75% 0.13 25);
+  --info: oklch(77% 0.1 250);
+
+  --good-soft: oklch(79% 0.12 155 / 0.14);
+  --warn-soft: oklch(82% 0.12 78 / 0.14);
+  --bad-soft: oklch(75% 0.13 25 / 0.15);
+  --info-soft: oklch(77% 0.1 250 / 0.14);
+
+  --c-hull: oklch(74% 0.11 250);
+  --c-cargo: oklch(80% 0.12 78);
+  --c-marina: oklch(76% 0.11 165);
+  --c-build: oklch(74% 0.12 40);
+  --c-fish: oklch(78% 0.11 125);
+  --c-charter: oklch(75% 0.12 8);
+
+  --tile-sea: oklch(36% 0.06 200 / 0.55);
+  --tile-sand: oklch(38% 0.05 75 / 0.55);
+  --tile-coral: oklch(36% 0.06 35 / 0.55);
+  --tile-sky: oklch(36% 0.06 250 / 0.55);
+  --tile-ink: oklch(94% 0.01 220);
+  --tile-muted: oklch(94% 0.01 220 / 0.7);
+
+  --sky1: oklch(15% 0.02 250);
+  --sky2: oklch(19% 0.03 228);
+  --sun: oklch(42% 0.08 60);
+  --w1: oklch(25% 0.045 205);
+  --w2: oklch(22% 0.05 215);
+  --w3: oklch(20% 0.05 225);
+  --w4: oklch(16.5% 0.045 235);
+  --crest: #96e1eb33;
+
+  color-scheme: dark;
+}
 
 * {
   margin: 0;
@@ -11,54 +177,537 @@
 }
 
 body {
-  margin: 0;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
-  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--ink);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+/* Tabular Numbers for Financial Data */
+.tabular-nums,
+.font-mono {
+  font-variant-numeric: tabular-nums;
 }
 
-/* Custom Scrollbar */
+/* ==========================================================================
+   MOORLY AMBIENT SEA HORIZON (.sea)
+   ========================================================================== */
+.sea {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  contain: strict;
+  background: linear-gradient(180deg, var(--sky1), var(--sky2) 60%, var(--w4));
+  transition: background 0.4s var(--ease);
+}
+
+.sea svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.sea .sea__sun {
+  fill: url(#sea-sun);
+  transition: opacity 0.4s var(--ease);
+}
+
+[data-theme="dark"] .sea .sea__sun {
+  opacity: 0.5;
+}
+
+.sea .w1 { fill: var(--w1); transition: fill 0.4s var(--ease); }
+.sea .w2 { fill: var(--w2); transition: fill 0.4s var(--ease); }
+.sea .w3 { fill: var(--w3); transition: fill 0.4s var(--ease); }
+.sea .w4 { fill: var(--w4); transition: fill 0.4s var(--ease); }
+
+.sea .crest {
+  fill: none;
+  stroke: var(--crest);
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ==========================================================================
+   MOORLY GLASS SURFACES & CARDS
+   ========================================================================== */
+.moorly-glass,
+.moorly-card,
+.moorly-top,
+.moorly-kpi,
+.moorly-tabbar,
+.moorly-signin {
+  background: linear-gradient(180deg, var(--glass-hi) -60%, transparent 38%), var(--glass);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4);
+  backdrop-filter: blur(var(--blur)) saturate(1.4);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    inset 0 0 0 1px var(--glass-rim),
+    var(--shadow);
+}
+
+.moorly-card {
+  border-radius: var(--r-lg);
+  padding: 18px 20px 20px;
+  position: relative;
+  min-width: 0;
+  color: var(--ink);
+}
+
+.moorly-card--flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.moorly-card--well {
+  background: var(--card-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.moorly-modal,
+.moorly-finder,
+.moorly-drawer {
+  background: var(--glass-strong) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(1.7);
+  backdrop-filter: blur(30px) saturate(1.7);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    inset 0 0 0 1px var(--glass-rim),
+    var(--shadow-lg) !important;
+  border-radius: var(--r-xl);
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   KPI OCEANIC TILES (.moorly-kpi)
+   ========================================================================== */
+.moorly-kpi {
+  border-radius: var(--r-lg);
+  padding: 16px 18px 15px;
+  min-height: 124px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  color: var(--tile-ink);
+}
+
+.moorly-kpi--sea {
+  background: linear-gradient(180deg, var(--glass-hi) -60%, transparent 40%), var(--tile-sea);
+}
+
+.moorly-kpi--sky {
+  background: linear-gradient(180deg, var(--glass-hi) -60%, transparent 40%), var(--tile-sky);
+}
+
+.moorly-kpi--coral {
+  background: linear-gradient(180deg, var(--glass-hi) -60%, transparent 40%), var(--tile-coral);
+}
+
+.moorly-kpi--sand {
+  background: linear-gradient(180deg, var(--glass-hi) -60%, transparent 40%), var(--tile-sand);
+}
+
+.moorly-kpi__label {
+  font-size: var(--fs-sm);
+  color: var(--tile-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.moorly-kpi__val {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--tile-ink);
+}
+
+.moorly-kpi__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--fs-xs);
+  color: var(--tile-muted);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   BUTTONS (.moorly-btn)
+   ========================================================================== */
+.moorly-btn {
+  height: 40px;
+  padding: 0 15px;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+  border-radius: var(--r-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease), transform 0.15s var(--ease), box-shadow 0.18s var(--ease);
+  user-select: none;
+}
+
+.moorly-btn:hover:not(:disabled) {
+  background: var(--card-3);
+}
+
+.moorly-btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+}
+
+.moorly-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.moorly-btn--primary {
+  background: linear-gradient(180deg, var(--accent-hi), var(--accent));
+  color: var(--accent-ink);
+  box-shadow: inset 0 1px 0 #ffffff38, 0 8px 18px -10px var(--accent);
+}
+
+.moorly-btn--primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, var(--accent-hi), var(--accent-hi));
+  filter: brightness(1.04);
+}
+
+.moorly-btn--dark {
+  background: var(--ink);
+  color: var(--bg);
+  box-shadow: none;
+}
+
+.moorly-btn--dark:hover:not(:disabled) {
+  background: var(--ink-2);
+}
+
+.moorly-btn--ghost {
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink-2);
+}
+
+.moorly-btn--ghost:hover:not(:disabled) {
+  background: var(--card-2);
+  color: var(--ink);
+}
+
+.moorly-btn--danger {
+  background: var(--bad-soft);
+  color: var(--bad);
+  box-shadow: inset 0 0 0 1px oklch(52% 0.16 25 / 0.25);
+}
+
+.moorly-btn--danger:hover:not(:disabled) {
+  background: var(--bad);
+  color: #ffffff;
+}
+
+.moorly-btn--sm {
+  height: 32px;
+  font-size: var(--fs-sm);
+  border-radius: 10px;
+  padding: 0 12px;
+}
+
+.moorly-btn--lg {
+  height: 48px;
+  font-size: var(--fs-lg);
+  border-radius: 14px;
+  padding: 0 22px;
+}
+
+.moorly-ibtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-2);
+  color: var(--ink-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: all 0.18s var(--ease);
+  cursor: pointer;
+}
+
+.moorly-ibtn:hover {
+  background: var(--card-3);
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   MICRO-DOT STATUS PILLS (.moorly-pill)
+   ========================================================================== */
+.moorly-pill {
+  height: 24px;
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+  background: var(--card-3);
+  color: var(--ink-2);
+  border-radius: 99px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  font-weight: 600;
+  display: inline-flex;
+}
+
+.moorly-pill::before {
+  content: "";
+  background: currentColor;
+  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+}
+
+.moorly-pill--plain::before {
+  display: none;
+}
+
+.moorly-pill--good {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.moorly-pill--warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.moorly-pill--bad {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
+.moorly-pill--info {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.moorly-pill--accent {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+/* ==========================================================================
+   SEGMENTED SWITCHER (.moorly-seg)
+   ========================================================================== */
+.moorly-seg {
+  background: var(--card-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  border-radius: 11px;
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  gap: 2px;
+}
+
+.moorly-seg__btn {
+  position: relative;
+  z-index: 1;
+  height: 32px;
+  padding: 0 13px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--muted);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.18s var(--ease);
+  cursor: pointer;
+}
+
+.moorly-seg__btn:hover {
+  color: var(--ink);
+}
+
+.moorly-seg__btn.is-active {
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   INPUTS & FORMS (.moorly-input)
+   ========================================================================== */
+.moorly-input,
+.moorly-select,
+.moorly-textarea {
+  background: var(--card);
+  color: var(--ink);
+  width: 100%;
+  height: 42px;
+  box-shadow: inset 0 0 0 1px var(--line-2);
+  font-size: var(--fs-base);
+  border: 0;
+  border-radius: 11px;
+  padding: 0 13px;
+  font-weight: 500;
+  transition: box-shadow 0.18s var(--ease), background 0.18s var(--ease);
+}
+
+.moorly-textarea {
+  height: auto;
+  padding: 10px 13px;
+}
+
+.moorly-input::placeholder,
+.moorly-textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.moorly-input:focus,
+.moorly-select:focus,
+.moorly-textarea:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--accent), 0 0 0 4px var(--accent-soft);
+}
+
+/* ==========================================================================
+   DATA TABLES (.moorly-table)
+   ========================================================================== */
+.moorly-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: var(--fs-md);
+}
+
+.moorly-table th {
+  text-align: left;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+  padding: 11px 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.moorly-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  vertical-align: middle;
+}
+
+.moorly-table tbody tr {
+  transition: background-color 0.15s var(--ease);
+}
+
+.moorly-table tbody tr:hover {
+  background-color: var(--card-2);
+}
+
+.moorly-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ==========================================================================
+   SCROLLBARS & UTILITIES
+   ========================================================================== */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background: var(--line-2);
+  border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--muted);
 }
 
-/* Select styling */
 select option {
-  background-color: #1e293b;
-  color: white;
+  background-color: var(--bg);
+  color: var(--ink);
 }
 
-/* Hide number input arrows - REVERTED */
-/* input[type="number"]::-webkit-inner-spin-button,
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
-} */
+}
 
-input[type="number"] {
-  -moz-appearance: textfield; /* Keep for Firefox if desired, or remove to show default */
-  color-scheme: dark; /* Forces browser to render native controls in dark mode */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes flash {
+  0% { color: var(--accent); }
+  100% { color: inherit; }
+}
+
+@keyframes shimmerWave {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.18); }
+}
+
+.chart-wave-glow {
+  filter: drop-shadow(0 4px 14px rgba(31, 122, 140, 0.3));
+}
+
+/* ==========================================================================
+   KEYBOARD FOCUS RINGS & REDUCED MOTION ACCESSIBILITY
+   ========================================================================== */
+.moorly-btn:focus-visible,
+.moorly-ibtn:focus-visible,
+.moorly-seg__btn:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

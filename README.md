@@ -1,48 +1,50 @@
-# 💰 Full-Stack Expense Tracker
+# Oceanic — Full-Stack Financial Operating System
 
-A modern, production-ready, full-stack expense tracking application built with **Laravel 12** and **React 19**. This application enables users to manage their personal finances, track recurring subscriptions, set tight budgets, and visualize their spending habits with interactive charts.
+A full-stack financial ledger, cashflow intelligence, and budgeting platform built with **Laravel 12** and **React 19**. Designed around the **Oceanic** aesthetic system (`#0B1622` deep obsidian navy and `#F6F9FC` cool alabaster), the application delivers real-time double-entry account transfers, interactive cashflow telemetry, automated recurring billing cycles, and bank statement reconciliation.
 
-## Key Features
+---
 
-- **📊 Interactive Dashboard**: Real-time overview of your financial health with animated charts (via Recharts).
-- **💸 Transaction Management**: Granular control over income and expense tracking.
-- **📦 Smart Categories**: Organize transactions with customizable categories equipped with emoji support.
-- **💰 Budgeting**: Set limits on your spending and monitor budget health dynamically.
-- **💳 Stripe Subscriptions**: Integrated Stripe payments for tracking premium subscriptions and payment histories, linked directly via Webhooks.
-- **📄 Export Functionality**: Generate and download financial reports in PDF and CSV formats.
-- **🔐 Secure Authentication**: Token-based API authentication utilizing Laravel Sanctum.
-- **🚀 One-Click Deployment**: Pre-configured `render.yaml` for seamless Infrastructure-as-Code deployment on Render.
+## Core Capabilities
+
+- **Oceanic Design System & Adaptive Theme**: Calibrated dark (`#0B1622`) and light (`#F6F9FC`) palettes with automatic OS `prefers-color-scheme` synchronization, tabular monospace numerals (`JetBrains Mono`), and tactile glass surfaces.
+- **Interactive Cashflow Wave & Bar Telemetry**: Custom SVG wave-area and grouped bar charts with fluid cubic-Bezier splines, vertical hover radar crosshairs, and timeframe filters (`All time`, `This month`, `Last 90d`, `YTD`).
+- **Financial Pulse & Velocity Analytics**: Automatic month-over-month (MoM) income and spending velocity comparison, net savings rate badges, and proactive budget pacing alerts ($\ge 75\%$ utilization).
+- **Multi-Account Ledger & Atomic Transfers**: Track balances across checking, savings, credit, and cash accounts (`AccountLedgerService`) with atomic double-entry funds transfers (`POST /api/accounts/transfer`) and one-click account ledger drill-downs.
+- **Interactive Ledger Sorting & Bulk Operations**: Sort transactions by `Date`, `Description`, or `Amount`, filter by type/category/account/date range, and perform multi-row bulk CSV exports or batch deletions.
+- **CSV Bank Statement Import**: Drag-and-drop CSV parser with automatic header detection (`Date`, `Description`, `Amount`, `Type`, `Category`), live preview table, and batch ledger ingestion (`POST /api/transactions/import`).
+- **Receipt Attachment & Lightbox Preview**: Attach image or PDF receipts (`JPG`, `PNG`, `WEBP`, `PDF` up to 5 MB) to any transaction (`POST /api/transactions/{id}/receipt`) with instant modal preview.
+- **Automated Recurring Commitments Engine**: Schedule daily, weekly, monthly, or yearly recurring transactions with an upcoming commitments dashboard widget and automated processing via `php artisan transactions:process-recurring` (`POST /api/transactions/process-recurring`).
+- **Multi-Provider AI Financial Advisor & Auto-Categorizer**: Grounded financial analysis and Q&A engine powered by **Google Gemini 2.5 Flash**, **OpenAI (`gpt-4o-mini`)**, **Groq (`llama-3.3-70b-versatile`)**, and an automatic zero-key deterministic fallback. Features automated Capital Efficiency Scoring (0–100), Radar Watchlist alerts, 1-click optimization cards, natural language ledger queries (`A` hotkey), and batch AI categorization for Bank CSV imports.
+- **Live Multi-Currency Formatting**: Instant workspace-wide currency switching (`$`, `€`, `£`, `DH`, `CA$`, `¥`) across all KPI cards, charts, tables, budgets, and PDF/CSV reports.
+- **Global Command Finder & Keyboard Shortcuts**: Press `/` or `Ctrl+K` (`⌘K`) to search transactions, accounts, budgets, and quick actions, or trigger instant single-key shortcuts (`N`, `T`, `X`, `P`, `A`) anywhere in the workspace.
+- **Stripe Pro Billing & Webhooks**: Integrated Stripe Checkout, Customer Portal, subscription lifecycle management, and payment-to-transaction syncing.
+
+---
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+| :--- | :--- |
+| `/` or `Ctrl + K` / `⌘K` | Open Global Command Finder |
+| `N` | Log New Transaction |
+| `A` | Open Oceanic AI Financial Advisor |
+| `X` | Navigate to Accounts & Atomic Transfers |
+| `P` | Open Profile, Security & Currency Modal |
+| `T` | Toggle Dark / Light Theme |
+| `Esc` | Close Active Modal or Command Finder |
 
 ---
 
 ## Tech Stack
 
-- **Language**: PHP 8.3+, JavaScript (ES6+)
-- **Backend Framework**: Laravel 12.0
-- **Frontend Library**: React 19.2 (Create React App)
-- **Database**: PostgreSQL (Production) / SQLite or MySQL (Development)
-- **Authentication**: Laravel Sanctum
-- **Payments / Billing**: Stripe API
-- **Charts / UI**: Recharts, Framer Motion, Lucide React
-- **Deployment**: Render (Docker APIs + PostgreSQL Database)
+- **Backend**: PHP 8.3+, Laravel 12.0, Laravel Sanctum, Stripe PHP SDK
+- **Frontend**: React 19.2, React Router 7, Tailwind CSS 3.4, Framer Motion 12, Recharts 3.4, Phosphor Icons (`@phosphor-icons/react`), jsPDF & PapaParse
+- **Database**: PostgreSQL (Production) / MySQL or SQLite (Development)
+- **Testing**: PHPUnit 11 (Feature & Unit Suites)
 
 ---
 
-## Prerequisites
-
-Before setting up the project locally, ensure your system has the following installed:
-
-- **PHP** >= 8.3
-- **Composer** (PHP dependency manager)
-- **Node.js** >= 18.x and **npm**
-- **PostgreSQL** (Recommended) or MySQL / SQLite
-- **Stripe Account** (Optional, required for executing payment/subscription workflows locally)
-
----
-
-## Getting Started
-
-Follow this step-by-step guide to get your local development environment up and running.
+## Quick Start
 
 ### 1. Clone the Repository
 
@@ -51,151 +53,105 @@ git clone https://github.com/MohamedAliCH/expense-tracker.git
 cd expense-tracker
 ```
 
-### 2. Backend Setup (Laravel API)
-
-Navigate to the API folder and install dependencies:
+### 2. Backend Setup (`expense-tracker-api`)
 
 ```bash
 cd expense-tracker-api
 composer install
-```
-
-Configure your environment:
-
-```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-Update the `.env` file with your local database credentials. For example (PostgreSQL):
-```env
-DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=expense_tracker
-DB_USERNAME=postgres
-DB_PASSWORD=your_password
-
-FRONTEND_URL=http://localhost:3000
-SANCTUM_STATEFUL_DOMAINS=localhost:3000
-```
-
-Run database migrations to build your schema, and seed default categories:
+Configure your database credentials in `expense-tracker-api/.env`, then run migrations and seed the demo account:
 
 ```bash
 php artisan migrate --seed
+php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Start the local backend development server:
+**Demo Credentials** (seeded via `JohnDoeSeeder`):
+- **Email**: `john@example.com`
+- **Password**: `password123`
 
-```bash
-php artisan serve
-```
-*The API will be accessible at `http://localhost:8000`*
+### 3. Frontend Setup (`expense-tracker-frontend`)
 
-### 3. Frontend Setup (React)
-
-Open a **new terminal tab**, and navigate to the frontend directory:
+In a separate terminal:
 
 ```bash
 cd expense-tracker-frontend
 npm install
 ```
 
-Configure the React environment:
-Create an `.env` file in the `expense-tracker-frontend` directory and define the API connection:
+Create `expense-tracker-frontend/.env` if needed:
 
 ```env
-REACT_APP_API_URL=http://localhost:8000/api
+REACT_APP_API_URL=http://127.0.0.1:8000/api
 ```
 
-Start the React development server:
+Start the development server:
 
 ```bash
 npm start
 ```
-*The application UI will run at `http://localhost:3000`*
+
+The application will be available at `http://localhost:3000`.
 
 ---
 
 ## Architecture Overview
 
-### Structure
-
-```
-├── expense-tracker-api/          # Laravel REST API Application
-│   ├── app/                      
-│   │   ├── Http/Controllers/Api/ # Endpoint controllers (CRUD, Stripe, Auth)
-│   │   └── Models/               # Eloquent ORMs (User, Transaction, Category...)
-│   ├── config/                   # Laravel configurations (CORS, DB, etc.)
-│   ├── database/                 # Migrations & Seeders
-│   ├── routes/                   # Contains api.php
-│   └── Dockerfile                # Docker setup for Render Web Service
+```text
+├── expense-tracker-api/                  # Laravel 12 REST API
+│   ├── app/
+│   │   ├── Console/Commands/             # ProcessRecurringTransactions CLI command
+│   │   ├── Http/Controllers/Api/         # Auth, Transaction, Account, Category, Budget, Stripe
+│   │   ├── Models/                       # User, Account, Transaction, Category, Budget, Subscription
+│   │   └── Services/                     # AccountLedgerService (atomic balance & transfer invariants)
+│   ├── database/
+│   │   ├── migrations/                   # Full schema including accounts, recurring, and receipts
+│   │   └── seeders/                      # CategorySeeder & JohnDoeSeeder
+│   ├── routes/api.php                    # Sanctum-protected API routes
+│   └── tests/Feature/                    # Automated feature test suites (Ledger, Profile, Recurring)
 │
-├── expense-tracker-frontend/     # React SPA Client
+├── expense-tracker-frontend/             # React 19 Client
 │   ├── src/
-│   │   ├── components/           # Reusable UI elements (Modals, Buttons)
-│   │   ├── contexts/             # React Contexts (AuthContext, ThemeContext)
-│   │   ├── services/             # Axios API communication logic
-│   │   └── utils/                # Utility formatting functions
+│   │   ├── components/
+│   │   │   ├── Accounts/                 # AccountPage, AccountCard, AccountModal, TransferModal
+│   │   │   ├── Auth/                     # Login, Register, ProtectedRoute, ProfileModal
+│   │   │   ├── Budgets/                  # BudgetPage, BudgetCard, BudgetModal
+│   │   │   ├── Categories/               # CategoryModal
+│   │   │   ├── Common/                   # AnimatedNumber, EmptyState, LoadingSpinner, ProgressBar
+│   │   │   ├── Dashboard/                # Dashboard, StatCard, ChartSection, FinancialPulse, UpcomingRecurring
+│   │   │   ├── Layout/                   # Header, CommandFinder
+│   │   │   ├── Payments/                 # PaymentList
+│   │   │   ├── Subscription/             # UpgradePage, SubscriptionBadge
+│   │   │   └── Transactions/             # TransactionTable, TransactionRow, TransactionModal, ImportCsvModal
+│   │   ├── contexts/                     # AuthContext, AppContext, ThemeContext
+│   │   └── utils/                        # Consolidated API client (api.js), Export (CSV/PDF), helpers
 │   └── package.json
 │
-└── render.yaml                   # Render Blueprint Infrastructure Config
-```
-
-### Data Flow
-
-```
-User Action → React Component → Axios Hook → Laravel API Controller → PostgreSQL Db
+└── render.yaml                           # Render Infrastructure-as-Code Blueprint
 ```
 
 ---
 
-## Deployment Configuration (Render)
+## Testing & Verification
 
-This project natively supports Infrastructure-as-Code via **Render**. The project is split into two deployment units: a Dockerized Laravel API + Managed Database, and a Static Frontend.
-
-The included `render.yaml` creates two services in the `ohio` region:
-1. **Managed PostgreSQL Database** 
-2. **Docker Web Service** for the `expense-tracker-api`
-
-### Deploying the Backend (Blueprint)
-
-1. Sign up for [Render.com](https://render.com).
-2. Go to your dashboard and click **New → Blueprint**.
-3. Link this GitHub repository.
-4. Render will read the `render.yaml` file, automatically provision the PostgreSQL database, and build the Docker image for the Laravel API. 
-
-*Render Free Tier Note: You can populate dummy data without using the paid SSH shell by visiting `/api/seed-johndoe` on your live API URL (e.g. `https://your-api.onrender.com/api/seed-johndoe`) which automatically runs the built-in `JohnDoeSeeder` simulator.*
-
-### Deploying the Frontend (Static Site)
-
-1. In Render, click **New → Static Site**.
-2. Connect this repository.
-3. Configure the settings:
-   - Root Directory: `expense-tracker-frontend`
-   - Build Command: `npm install && npm run build`
-   - Publish Directory: `expense-tracker-frontend/build`
-4. Expand **Advanced**, and add environment variables:
-   - `REACT_APP_API_URL` = `https://your-backend-render-url.onrender.com/api`
-5. Click **Create Static Site**.
-
----
-
-## Testing
-
-For backend testing (PHPUnit/Pest are enabled):
+Run the backend automated test suite (24 tests, 69 assertions covering authentication, profile/password security, double-entry ledger balance synchronization, atomic account transfers, CSV bulk imports, and recurring transaction cycles):
 
 ```bash
 cd expense-tracker-api
 php artisan test
 ```
 
-For frontend suite:
+Compile the production frontend bundle:
+
 ```bash
 cd expense-tracker-frontend
-npm test
+npm run build
 ```
+
+---
 
 ## License
 

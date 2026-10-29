@@ -1,15 +1,19 @@
 {
   "short_name": "Expense Tracker",
-  "name": "Expense Tracker App",
+  "name": "Expense Tracker — Personal Finance & Cashflow",
+  "description": "Oceanic frosted glass finance manager and cashflow ledger",
   "icons": [
     {
       "src": "favicon.svg",
       "sizes": "192x192 512x512",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/dashboard",
   "display": "standalone",
-  "theme_color": "#3b82f6",
-  "background_color": "#ffffff"
+  "orientation": "portrait-primary",
+  "theme_color": "#1f7a8c",
+  "background_color": "#0f161c",
+  "categories": ["finance", "productivity"]
 }

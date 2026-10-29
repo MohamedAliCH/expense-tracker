@@ -1,6 +1,6 @@
 services:
   # ---------------------------------------------------
-  # Laravel Backend (Native PHP Environment)
+  # Laravel Backend (Dockerized PHP 8.3 Environment)
   # ---------------------------------------------------
   - type: web
     name: expense-tracker-api
@@ -8,8 +8,6 @@ services:
     rootDir: expense-tracker-api
     plan: free
     region: ohio
-
-    # Docker runtime uses the Dockerfile for build/start instructions
 
     envVars:
       - key: APP_KEY
@@ -25,7 +23,7 @@ services:
       - key: FRONTEND_URL
         value: https://expense-tracker-frontend-iyhk.onrender.com
       - key: SANCTUM_STATEFUL_DOMAINS
-        value: expense-tracker-frontend-iyhk.onrender.com,daliii.me
+        value: expense-tracker-frontend-iyhk.onrender.com
 
       # Database Connection (Auto-linked)
       - key: DB_CONNECTION
@@ -53,11 +51,23 @@ services:
       - key: DB_SSL_MODE
         value: require
 
-      # Secrets (Set manually in Dashboard for security)
+      # Secrets (Set in Render Dashboard)
       - key: STRIPE_SECRET
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+
+      # AI Advisor Configuration (Free Tier Google Gemini / Groq)
+      - key: AI_PROVIDER
+        value: auto
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: qwen/qwen3.8-27b
 
 databases:
   # ---------------------------------------------------
@@ -66,5 +76,5 @@ databases:
   - name: expense-tracker-db
     databaseName: expense_tracker
     user: expense_user
-    plan: free # Expire after 90 days on free tier
+    plan: free
     region: ohio
