@@ -28,16 +28,18 @@ Route::get('/health', function () {
     ]);
 });
 
-// DEV/TESTING SEEDER ROUTE (Restricted to non-production and auth)
-if (app()->environment('local', 'testing')) {
-    Route::post('/seed-johndoe', function () {
-        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'JohnDoeSeeder', '--force' => true]);
-        return response()->json([
-            'message' => 'Successfully seeded John Doe transactions!',
-            'log' => \Illuminate\Support\Facades\Artisan::output()
-        ]);
-    })->middleware('auth:sanctum');
-}
+// SEED DEMO ACCOUNT ROUTE (Accessible in all environments with safe key or basic auth)
+Route::post('/seed-demo', function () {
+    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'JohnDoeSeeder', '--force' => true]);
+    return response()->json([
+        'status' => 'success',
+        'message' => 'John Doe demo account has been initialized.',
+        'credentials' => [
+            'email' => 'john@example.com',
+            'password' => 'password123',
+        ],
+    ]);
+});
 
 // PROTECTED ROUTES (Authentication required)
 

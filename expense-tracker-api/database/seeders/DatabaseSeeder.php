@@ -15,11 +15,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Only seed default categories and accounts
-        // Users should register themselves
+        // Seed default categories, default accounts, and the demo John Doe user
         $this->call([
             CategorySeeder::class,
             DefaultAccountsSeeder::class,
+            JohnDoeSeeder::class,
         ]);
     }
 }
